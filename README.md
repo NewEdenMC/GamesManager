@@ -1,3 +1,3 @@
 # GamesManager
 
-Bukkit/Spigot plugin for managing games.
+Bukkit/Spigot plugin used on New Eden servers for managing games.
