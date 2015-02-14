@@ -1,0 +1,1 @@
+kickPlayersTo:   server: null   world: nullgames:   hg1:      type: hungergames      maxplayers: 24      lobbyspawn: world 0 64 0      specspawn: world_nether 0 64 0      gamespawns:      - world_nether 24 64 15      - world_nether 19 64 15      - world_nether 17 64 9
