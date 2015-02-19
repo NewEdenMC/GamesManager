@@ -102,6 +102,13 @@ public class Countdown {
 		return this;
 	}
 	
+	public Countdown runCodeAt(int time, Runnable run) {
+		if (time >= runAt.size()) return this;
+		if (runAt.get(time) == null) runAt.set(time, new Run());
+		runAt.get(time).addRunnable(run);
+		return this;
+	}
+	
 	// Duplicate method in BarAPIInterface
 	public String formatMessage(String message) {
 		message = Util.formatString(message);
@@ -150,6 +157,13 @@ public class Countdown {
 			if (run.getRunCommand().isEmpty() == false) {
 				for (String command : run.getRunCommand()) {
 					Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+				}
+			}
+		} catch (NullPointerException e) { }
+		try {
+			if (run.getRunnable().isEmpty() == false) {
+				for (Runnable runnable : run.getRunnable()) {
+					runnable.run();
 				}
 			}
 		} catch (NullPointerException e) { }

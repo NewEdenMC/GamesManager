@@ -14,6 +14,7 @@ public class Run {
 	private BarAPIInterface barAPIInterface = null;
 	private ArrayList<CallMethod> callMethod = new ArrayList<CallMethod>();
 	private ArrayList<String> runCommand = new ArrayList<String>();
+	private ArrayList<Runnable> runnable = new ArrayList<Runnable>();
 	
 	public void addBroadcastToServer(String message) { broadcastToServer.add(message); }
 	public ArrayList<String> getBroadcastToServer() { return broadcastToServer; }
@@ -34,5 +35,8 @@ public class Run {
 	
 	public void addRunCommand(String command) { runCommand.add(command); }
 	public ArrayList<String> getRunCommand() { return runCommand; }
+	
+	public void addRunnable(Runnable runnable) { this.runnable.add(runnable); }
+	public ArrayList<Runnable> getRunnable() { return this.runnable; }
 	
 }
