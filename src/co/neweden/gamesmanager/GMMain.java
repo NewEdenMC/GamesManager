@@ -44,8 +44,10 @@ public class GMMain extends JavaPlugin implements Listener {
 		}
 		
 		if (sender.hasPermission("gamesmanager.game." + game.getName()) == false) {
-			sender.sendMessage(String.format(Util.formatString("&cYou do not have permission to run commands for game: %s"), game.getName()));
-			return true;
+			if (sender.hasPermission("gamesmanager.game.*") == false) {
+				sender.sendMessage(String.format(Util.formatString("&cYou do not have permission to run commands for game: %s"), game.getName()));
+				return true;
+			}
 		}
 		
 		if (game.getTypeClass() == null) {
