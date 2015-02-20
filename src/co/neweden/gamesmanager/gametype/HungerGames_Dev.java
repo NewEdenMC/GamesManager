@@ -187,6 +187,9 @@ public class HungerGames_Dev implements GameType, Listener {
 		game.freezePlayers().disable();
 		game.broadcast("&eThe game has started!");
 		new Chests(game).startListening();
+		game.countdown().newCountdown(30, -1)
+			.broadcastMessageToGameAt(1, "&bCurrent players: %playing%")
+			.start();
 		// TODO: Add 0 to the end of each time value
 		game.countdown().newCountdown(3)
 			.broadcastMessageToGameAt(3, "&b30 second PvP grace period has started!")

@@ -1,5 +1,9 @@
 package co.neweden.gamesmanager.game.countdown;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,6 +34,12 @@ public class BarAPIInterface implements Listener {
 	public String formatMessage(String message) {
 		message = Util.formatString(message);
 		message = message.replaceAll("%counter%", countdown.toString());
+		message = message.replaceAll("%totalPlaying%", "" + game.getPlaying().size());
+		Set<String> playingPlayerNames = new HashSet<String>();
+		for (Player player : game.getPlaying()) {
+			playingPlayerNames.add(player.getName());
+		}
+		message = message.replaceAll("%playing%", StringUtils.join(playingPlayerNames, ", "));
 		return message;
 	}
 	
