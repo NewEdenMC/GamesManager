@@ -15,6 +15,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -67,7 +68,16 @@ public class Chests implements Listener {
 		Block block = event.getClickedBlock();
 		if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {
 			if (chests.contains(block) == false) {
-				chests.add(block);
+				Chest chest = (Chest) block.getState();
+				if (chest.getInventory() instanceof DoubleChestInventory) {
+					DoubleChestInventory dChest = (DoubleChestInventory) chest.getInventory();
+					InventoryHolder left = (InventoryHolder) dChest.getLeftSide().getHolder();
+					InventoryHolder right = (InventoryHolder) dChest.getRightSide().getHolder();
+					chests.add(((Chest) left).getBlock());
+					chests.add(((Chest) right).getBlock());
+				} else {
+					chests.add(block);
+				}
 				fillContainer(block);
 			}
 		}
