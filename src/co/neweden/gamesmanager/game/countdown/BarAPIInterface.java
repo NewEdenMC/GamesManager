@@ -56,7 +56,6 @@ public class BarAPIInterface implements Listener {
 				for (Player player : game.getPlayers()) {
 					float percent = ((float) countdown / duration) * 100;
 					try {
-						me.confuser.barapi.BarAPI.setMessage(formatMessage(message));
 						me.confuser.barapi.BarAPI.setMessage(player, formatMessage(message), percent);
 					} catch (NullPointerException e) {
 						Bukkit.getLogger().warning(String.format("[%s] Cannot create Boss Bar as plugin BarAPI is not installed.", game.getPlugin().getName()));
