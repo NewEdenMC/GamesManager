@@ -53,8 +53,8 @@ public class Game implements Listener {
 		resetPVP();
 	}
 	
-	public void preparePlayer(Player player) { players.add(player); }
-	public void releasePlayer(Player player) { players.remove(player); }
+	public void preparePlayer(Player player) { players.add(player); Bukkit.getLogger().info(String.format("[%s] Preparing player %s for %s", plugin.getName(), player.getName(), getName())); }
+	public void releasePlayer(Player player) { players.remove(player); Bukkit.getLogger().info(String.format("[%s] Releasing player %s from %s", plugin.getName(), player.getName(), getName())); }
 	
 	public void updatePlayerList() {
 		for (Player player : players) {
