@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.FreezePlayers;
+import co.neweden.gamesmanager.game.GameConfig;
 import co.neweden.gamesmanager.game.ReservedSlots;
 import co.neweden.gamesmanager.game.Spectate;
 import co.neweden.gamesmanager.game.WorldsManager;
@@ -32,6 +33,7 @@ public class Game implements Listener {
 	public Game(GMMain instance, String gamename) {
 		this.plugin = instance;
 		this.gamename = gamename;
+		gameConfig = new GameConfig(this);
 		freezePlayers = new FreezePlayers(this);
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
@@ -67,6 +69,9 @@ public class Game implements Listener {
 				players.remove(player);
 		}
 	}
+	
+	private GameConfig gameConfig;
+	public GameConfig getConfig() { return this.gameConfig; }
 	
 	private FreezePlayers freezePlayers;
 	public FreezePlayers freezePlayers() { return freezePlayers; }
