@@ -15,6 +15,7 @@ import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.FreezePlayers;
 import co.neweden.gamesmanager.game.GameConfig;
+import co.neweden.gamesmanager.game.GameConfig.Scope;
 import co.neweden.gamesmanager.game.ReservedSlots;
 import co.neweden.gamesmanager.game.Spectate;
 import co.neweden.gamesmanager.game.WorldsManager;
@@ -86,15 +87,14 @@ public class Game implements Listener {
 	public WorldsManager worlds() { return this.worldsManager; }
 	
 	public GMMain getPlugin() { return plugin; }
+	@Deprecated
 	public String getConfigPath() { return "games." + getName(); }
+	@Deprecated
 	public String getMapConfigPath() { return getConfigPath() + ".maps." + mapName; }
 	public String getName() { return gamename; }
-	
-	public String getType() {
-		if (getPlugin().getConfig().isString("games." + getName() + ".type")) {
-			return getPlugin().getConfig().getString("games." + getName() + ".type");
-		} else return null;
-	}
+	public String getCurrentMapName() { return mapName; }
+	public String getType() { return getConfig().getString("type", null, Scope.GAME); }
+	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false, Scope.GAME); }
 	
 	public GameType getTypeClass() {
 		if (gameClass != null) return gameClass;
@@ -115,27 +115,8 @@ public class Game implements Listener {
 		return gameClass;
 	}
 	
-	public boolean isEnabled() {
-		if (plugin.getConfig().isBoolean(getConfigPath() + ".enabled")) {
-			return plugin.getConfig().getBoolean(getConfigPath() + ".enabled");
-		} else return false;
-	}
-	
-	public int getMinPlayerCount() {
-		if (plugin.getConfig().isInt(getConfigPath() + ".minplayers")) {
-			return plugin.getConfig().getInt(getConfigPath() + ".minplayers");
-		} else {
-			return 0;
-		}
-	}
-	
-	public int getMaxPlayerCount() {
-		if (plugin.getConfig().isInt(getConfigPath() + ".maxplayers")) {
-			return plugin.getConfig().getInt(getConfigPath() + ".maxplayers");
-		} else {
-			return 0;
-		}
-	}
+	public Integer getMinPlayerCount() { return getConfig().getInteger("minplayers", 0); }
+	public Integer getMaxPlayerCount() { return getConfig().getInteger("maxplayers", 0); }
 	
 	public Set<Location> getSpawnLocations() {
 		Set<Location> spawnLocations = new HashSet<Location>();
