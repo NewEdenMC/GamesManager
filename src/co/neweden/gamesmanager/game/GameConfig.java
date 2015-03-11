@@ -1,10 +1,13 @@
 package co.neweden.gamesmanager.game;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import co.neweden.gamesmanager.Game;
+import co.neweden.gamesmanager.Util;
 
 public class GameConfig {
 	
@@ -65,6 +68,41 @@ public class GameConfig {
 		else if (pConfig.isList(gPath + path))
 			return pConfig.getList(gPath + path);
 		else return defaultValue;
+	}
+	
+	public Location getLocation(String path, Location defaultValue) { return getLocation(path, defaultValue, false); }
+	public Location getLocation(String path, Location defaultValue, Scope scope) { return getLocation(path, defaultValue, false, scope); }
+	public Location getLocation(String path, Location defaultValue, Boolean cleanLocation) { return getLocation(path, defaultValue, cleanLocation, Scope.MAP); }
+	public Location getLocation(String path, Location defaultValue, Boolean cleanLocation, Scope scope) {
+		if (pConfig.isString(mPath + path) && scope.equals(Scope.MAP)) {
+			if (Util.verifyLocation(pConfig.getString(mPath + path)) && scope.equals(Scope.MAP))
+				return Util.parseLocation(pConfig.getString(mPath + path), cleanLocation);
+		} else if (pConfig.isString(gPath + path)) {
+			if (Util.verifyLocation(pConfig.getString(gPath + path)))
+				return Util.parseLocation(pConfig.getString(gPath + path), cleanLocation);
+		}
+		return defaultValue;
+	}
+	
+	public List<Location> getLocationList(String path, List<Location> defaultValue) { return getLocationList(path, defaultValue, false); }
+	public List<Location> getLocationList(String path, List<Location> defaultValue, Scope scope) { return getLocationList(path, defaultValue, false, scope); }
+	public List<Location> getLocationList(String path, List<Location> defaultValue, Boolean cleanLocation) { return getLocationList(path, defaultValue, cleanLocation, Scope.MAP); }
+	public List<Location> getLocationList(String path, List<Location> defaultValue, Boolean cleanLocation, Scope scope) {
+		if (pConfig.isList(mPath + path)) {
+			return locListLoop(pConfig.getList(mPath + path), cleanLocation);
+		} else if (pConfig.isList(gPath + path)) {
+			return locListLoop(pConfig.getList(gPath + path), cleanLocation);
+		} else return defaultValue;
+	}
+	
+	private List<Location> locListLoop(List<?> list, Boolean cleanLocation) {
+		List<Location> locList = new ArrayList<Location>();
+		for (Object location : list) {
+			String loc = location.toString();
+			if (Util.verifyLocation(loc) == true) 
+				locList.add(Util.parseLocation(loc, cleanLocation));
+		}
+		return locList;
 	}
 	
 }

@@ -1,8 +1,8 @@
 package co.neweden.gamesmanager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
@@ -120,47 +120,22 @@ public class Game implements Listener {
 	
 	public Set<Location> getSpawnLocations() {
 		Set<Location> spawnLocations = new HashSet<Location>();
-		spawnLocations.add(getLobbySpawnLocation());
-		spawnLocations.add(getSpecSpawnLocation());
+		if (getLobbySpawnLocation() != null)
+			spawnLocations.add(getLobbySpawnLocation());
+		if (getSpecSpawnLocation() != null)
+			spawnLocations.add(getSpecSpawnLocation());
 		spawnLocations.addAll(getGameSpawnLocations());
 		spawnLocations.addAll(getDMSpawnLocations());
 		return spawnLocations;
 	}
 	
-	public Location getLobbySpawnLocation() { return getConfigLocation("lobbyspawn"); }
-	public Location getSpecSpawnLocation() { return getConfigLocation("specspawn"); }
+	public Location getLobbySpawnLocation() { return getConfig().getLocation("lobbyspawn", null); }
+	public Location getSpecSpawnLocation() { return getConfig().getLocation("specspawn", null); }
 	public Set<Location> getGameSpawnLocations() { return getConfigLocations("gamespawns"); }
 	public Set<Location> getDMSpawnLocations() { return getConfigLocations("dmspawns"); }
 	
-	public Location getConfigLocation(String configKey) {
-		for (Location location : getConfigLocations(configKey)) {
-			return location;
-		}
-		return null;
-	}
-	
 	public Set<Location> getConfigLocations(String configKey) {
-		Set<Location> spawnLocations = new HashSet<Location>();
-		String gPath = getConfigPath() + "." + configKey;
-		String mPath = getMapConfigPath() + "." + configKey;
-		String path = mPath;
-		if (getPlugin().getConfig().isString(mPath) == false && 
-			getPlugin().getConfig().isList(mPath) == false)
-				path = gPath;
-		
-		if (getPlugin().getConfig().isString(path)) {
-			if (Util.verifyLocation(getPlugin().getConfig().getString(path)) == true) 
-				spawnLocations.add(Util.parseLocation(getPlugin().getConfig().getString(path), true));
-		}
-		if (getPlugin().getConfig().isList(path)) {
-			List<?> loclist = getPlugin().getConfig().getList(path);
-			for (Object location : loclist) {
-				String loc = location.toString();
-				if (Util.verifyLocation(loc) == true) 
-					spawnLocations.add(Util.parseLocation(loc, true));
-			}
-		}
-		return spawnLocations;
+		return new HashSet<>(getConfig().getLocationList(configKey, new ArrayList<Location>(), true));
 	}
 	
 	private CMain cMain = null;
