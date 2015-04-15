@@ -59,7 +59,7 @@ public class Game implements Listener {
 	public void preparePlayer(Player player) { players.add(player); Bukkit.getLogger().info(String.format("[%s] Preparing player %s for %s", plugin.getName(), player.getName(), getName())); }
 	public void releasePlayer(Player player) { players.remove(player); Bukkit.getLogger().info(String.format("[%s] Releasing player %s from %s", plugin.getName(), player.getName(), getName())); }
 	
-	public void updatePlayerList() {
+	public void refreshPlayerList() {
 		for (Player player : players) {
 			boolean remove = true;
 			for (World world : worlds().getWorlds()) {

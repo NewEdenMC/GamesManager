@@ -123,11 +123,20 @@ public class GamesManager {
 			if (Bukkit.getWorld(cWorld) != null) {
 				player.teleport(Bukkit.getWorld(cWorld).getSpawnLocation());
 				player.sendMessage(Util.formatString(String.format("&e[&6%s&e] &6%s", sender, message)));
-				return;
-			} else
+			} else {
 				Bukkit.getLogger().log(Level.WARNING, String.format("[%s] Could not kick %s to world %s, world does not exist, kicking from server instead.", getPlugin().getName(), player.getName(), cWorld));
+				player.kickPlayer(message);
+			}
 		}
-		player.kickPlayer(message);
+		// Due to a random bug in the Bukkit events system, sometimes players aren't removed from
+		// the player lists when they are kicked from a game, this "should" resolve this issue.
+		GamesManager.refreshPlayerLists();
+	}
+	
+	public static void refreshPlayerLists() {
+		for (Game game : GamesManager.games.values()) {
+			game.refreshPlayerList();
+		}
 	}
 	
 }
