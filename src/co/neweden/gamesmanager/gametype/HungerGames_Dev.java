@@ -75,8 +75,7 @@ public class HungerGames_Dev implements GameType, Listener {
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
 				if (game.getLobbySpawnLocation() != null)
 					event.getPlayer().teleport(game.getLobbySpawnLocation());
-				// TODO: Change value to 3 after testing
-				if (game.getPlayers().size() >= 1) {
+				if (game.getPlayers().size() >= 1) { // TODO: Normal value is 3
 					lobby();
 				} else {
 					event.getPlayer().sendMessage(Util.formatString("&eThe game is currently in pre-lobby, 3 players minimum needed to start."));
@@ -90,14 +89,13 @@ public class HungerGames_Dev implements GameType, Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(GMPlayerLeaveGameEvent event) {
 		if (game.getPlayers().contains(event.getPlayer()) == false) return;
 		int playing = game.getPlaying().size() - 1;
 		
 		if (status.equals("lobby")) {
-			// TODO: Change value to 3 after testing
-			if (playing <= 1) preLobby();
+			if (playing <= 1) preLobby(); // TODO: Normal value is 3
 		}
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			if (playing <= 1) { endGame(); return; }
@@ -114,7 +112,7 @@ public class HungerGames_Dev implements GameType, Listener {
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			game.broadcast(String.format("&b%s, there are only %s tributes left!", event.getDeathMessage(), playing));
 			event.setDeathMessage(null);
-			if (playing <= 1) { endGame(); return; }
+			if (playing <= 1) { endGame(event.getEntity().getKiller()); return; }
 			if (status.equals("inprogress")) {
 				if (playing <= 2) { preDeathmatch(); return; }
 			}
@@ -124,7 +122,6 @@ public class HungerGames_Dev implements GameType, Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onRespawn(PlayerRespawnEvent event) {
 		if (game.getPlayers().contains(event.getPlayer()) == false) return;
-		event.setRespawnLocation(game.getSpecSpawnLocation());
 		if (status.equals("prelobby") || status.equals("lobby"))
 			event.setRespawnLocation(game.getLobbySpawnLocation());
 		else
@@ -144,11 +141,8 @@ public class HungerGames_Dev implements GameType, Listener {
 		status = "lobby";
 		game.countdown().stopAll();
 		game.broadcast("&eMinimum players reached, game will start in 2 minutes"); // TODO: Add more output
-		// TODO: Change back when done testing
-		//game.countdown().newCountdown(60)
-		game.countdown().newCountdown(30)
-			//.setBossBarForGameAt(60, "Game will start in %counter%!")
-			.setBossBarForGameAt(30, "Game will start in %counter%!")
+		game.countdown().newCountdown(30) // TODO: Normal value is 60
+			.setBossBarForGameAt(30, "Game will start in %counter%!") // TODO: Normal value is 60
 			.callMethodAt(1, this, "preIP")
 			.start();
 	}
@@ -173,6 +167,7 @@ public class HungerGames_Dev implements GameType, Listener {
 			}
 		}.runTaskLater(game.getPlugin(), 1L);
 		Countdown cd = game.countdown().newCountdown(15)
+			.callMethodAt(14, game, "resetDataForPlayers")
 			.broadcastMessageToGameAt(15, "&bGame will start in 15 seconds, get ready!")
 			.broadcastMessageToGameAt(10, "&bGame will start in 10 seconds!")
 			.callMethodAt(0, this, "inprogress")
@@ -185,20 +180,20 @@ public class HungerGames_Dev implements GameType, Listener {
 	public void inprogress() {
 		status = "inprogress";
 		game.freezePlayers().disable();
+		game.stats().startListening();
 		game.broadcast("&eThe game has started!");
 		new Chests(game).startListening();
 		game.countdown().newCountdown(30, -1)
 			.broadcastMessageToGameAt(1, "&bCurrent players: %playing%")
 			.start();
-		// TODO: Add 0 to the end of each time value
-		game.countdown().newCountdown(3)
-			.broadcastMessageToGameAt(3, "&b30 second PvP grace period has started!")
+		game.countdown().newCountdown(3) // TODO: Normal value 30
+			.broadcastMessageToGameAt(3, "&b30 second PvP grace period has started!") // TODO: Normal value 30
 			.callMethodAt(0, this, "enablePVP")
 			.broadcastMessageToGameAt(0, "&bPvP Grace Period now over!")
 			.start();
-		game.countdown().newCountdown(60)
-			.broadcastMessageToGameAt(30, "&cDeathmatch in 5 minutes")
-			.broadcastMessageToGameAt(6, "&cDeathmatch in 1 minute, get ready!")
+		game.countdown().newCountdown(60) // TODO: Normal value 60
+			.broadcastMessageToGameAt(30, "&cDeathmatch in 5 minutes") // TODO: Normal value 300
+			.broadcastMessageToGameAt(6, "&cDeathmatch in 1 minute, get ready!") // TODO: Normal value 60
 			.callMethodAt(0, this, "preDeathmatch")
 			.start();
 	}
@@ -238,8 +233,7 @@ public class HungerGames_Dev implements GameType, Listener {
 			}
 		}
 		
-		//game.countdown().newCountdown(game, 30)
-		game.countdown().newCountdown(0)
+		game.countdown().newCountdown(0) // TODO: Normal value 30
 			.callMethodAt(0, this, "deathmatch")
 			.start();
 	}
@@ -248,22 +242,21 @@ public class HungerGames_Dev implements GameType, Listener {
 		game.freezePlayers().disable();
 		status = "deathmatch";
 		game.broadcast("&bDeathmatch has begun!");
-		game.countdown().newCountdown(30)
-		/*game.countdown().newCountdown(120)
-			.broadcastMessageToGameAt(60, "&cDeathmatch will end in 60 seconds.")
+		game.countdown().newCountdown(30) // TODO: Normal value 120
+			/*.broadcastMessageToGameAt(60, "&cDeathmatch will end in 60 seconds.")
 			.broadcastMessageToGameAt(30, "&cDeathmatch will end in 30 seconds.")*/
 			.broadcastMessageToGameAt(15, "&cDeathmatch will end in 15 seconds.")
 			.callMethodAt(0, this, "endGame")
 			.start();
 	}
 	
-	public void endGame() {
+	public void endGame() { endGame(null); }
+	public void endGame(Player forceWinner) {
 		game.countdown().stopAll();
 		game.freezePlayers().disable();
+		game.stats().stopListening();
 		status = "endgame";
-		if (game.getPlaying().size() == 1) {
-			Bukkit.broadcastMessage(String.format(Util.formatString("&aThe game is over %s has won the game"), game.getPlaying().toArray(new Player[0])[0].getName()));
-		} else Bukkit.broadcastMessage(Util.formatString("&aThe game is over, there was no clear winner"));
+		game.stats().renderTopList(game.stats().getCurrentPlayTimes(), 3, forceWinner);
 		new BukkitRunnable() {
 			@Override
 			public void run() {

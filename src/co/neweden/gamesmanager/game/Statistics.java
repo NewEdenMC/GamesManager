@@ -1,6 +1,12 @@
 package co.neweden.gamesmanager.game;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,8 +29,17 @@ public class Statistics implements Listener {
 		Bukkit.getPluginManager().registerEvents(this, game.getPlugin());
 	}
 	
-	public void startListening() { listen = true; }
-	public void stopListening() { listen = false; }
+	public void startListening() {
+		for (Player player : game.getPlaying()) {
+			if (joinedAt.containsKey(player) == false)
+				joinedAt.put(player, System.currentTimeMillis());
+		}
+		listen = true;
+	}
+	
+	public void stopListening() {
+		listen = false;
+	}
 	
 	private HashMap<Player, Long> joinedAt = new HashMap<Player, Long>();
 	public HashMap<Player, Long> getAllJoinTimes() { return joinedAt; }
@@ -35,7 +50,7 @@ public class Statistics implements Listener {
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onJoinGame(GMPlayerJoinGameEvent event) {
 		if (listen == false) return;
-	if (game.getPlaying().contains(event.getPlayer()) == false) return;
+		if (game.getPlaying().contains(event.getPlayer()) == false) return;
 		joinedAt.put(event.getPlayer(), System.currentTimeMillis());
 	}
 	
@@ -121,6 +136,71 @@ public class Statistics implements Listener {
 		} else {
 			return 0;
 		}
+	}
+	
+	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map) { return groupAndSort(map, true); }
+	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map, boolean reverseOrder) {
+		TreeMap<Long, ArrayList<Player>> groups;
+		if (reverseOrder == true)
+			groups = new TreeMap<Long, ArrayList<Player>>(Collections.reverseOrder());
+		else
+			groups = new TreeMap<Long, ArrayList<Player>>();
+		
+		for (Entry<Player, Long> e : map.entrySet()) {
+			if (groups.containsKey(e.getValue()))
+				// If the players statistic value is in the Map, then just add them to the inner List
+				groups.get(e.getValue()).add(e.getKey());
+			else
+				// If the players statics value isn't in the Map, add the value and a new List with that player
+				groups.put(e.getValue(), new ArrayList<Player>(Arrays.asList(e.getKey())));
+		}
+		
+		return groups;
+	}
+	
+	private String readablePlace(Integer num) {
+		if (num.equals(11) || num.equals(12) || num.equals(13))
+			return num + "th";
+		String place = num.toString();
+		switch (num % 10) {
+			case 1: place = "&e" + num + "st"; break;
+			case 2: place = "&6" + num + "nd"; break;
+			case 3: place = "&c" + num + "rd"; break;
+			default: place = num + "th"; break;
+		}
+		return place;
+	}
+	
+	public void renderTopList(HashMap<Player, Long> data, int numToList) { renderTopList(data, numToList, null); }
+	public void renderTopList(HashMap<Player, Long> data, int numToList, Player forceFirst) {
+		if (forceFirst != null) data.remove(forceFirst);
+		TreeMap<Long, ArrayList<Player>> groups = groupAndSort(data);
+		if (forceFirst != null)
+			groups.put(groups.firstKey() + 1, new ArrayList<Player>(Arrays.asList(forceFirst)));
+		
+		game.broadcast("&2&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580");
+		game.broadcast("");
+		game.broadcast("&bThe game has ended, the top three players are:");
+		
+		int place = 1;
+		for (Entry<Long, ArrayList<Player>> group : groups.entrySet()) {
+			String s = ""; int i = 0;
+			for (Player player : group.getValue()) {
+				 s += player.getName();
+				if (group.getValue().size() - 2 == i)
+					s += " and ";
+				else
+					if (group.getValue().size() - 1 != i) s += ", ";
+				i++;
+			}
+			game.broadcast(String.format("%s place %s", readablePlace(place), s));
+			place++;
+			// Stop the loop if we shouldn't list any more places after this one
+			if (place > numToList) break;
+		}
+		
+		game.broadcast("");
+		game.broadcast("&2&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580");
 	}
 	
 }

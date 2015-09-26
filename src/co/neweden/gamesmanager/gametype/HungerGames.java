@@ -89,7 +89,7 @@ public class HungerGames implements GameType, Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(GMPlayerLeaveGameEvent event) {
 		if (game.getPlayers().contains(event.getPlayer()) == false) return;
 		int playing = game.getPlaying().size() - 1;
@@ -112,7 +112,7 @@ public class HungerGames implements GameType, Listener {
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			game.broadcast(String.format("&b%s, there are only %s tributes left!", event.getDeathMessage(), playing));
 			event.setDeathMessage(null);
-			if (playing <= 1) { endGame(); return; }
+			if (playing <= 1) { endGame(event.getEntity().getKiller()); return; }
 			if (status.equals("inprogress")) {
 				if (playing <= 2) { preDeathmatch(); return; }
 			}
@@ -180,6 +180,7 @@ public class HungerGames implements GameType, Listener {
 	public void inprogress() {
 		status = "inprogress";
 		game.freezePlayers().disable();
+		game.stats().startListening();
 		game.broadcast("&eThe game has started!");
 		new Chests(game).startListening();
 		game.countdown().newCountdown(30, -1)
@@ -249,13 +250,13 @@ public class HungerGames implements GameType, Listener {
 			.start();
 	}
 	
-	public void endGame() {
+	public void endGame() { endGame(null); }
+	public void endGame(Player forceWinner) {
 		game.countdown().stopAll();
 		game.freezePlayers().disable();
+		game.stats().stopListening();
 		status = "endgame";
-		if (game.getPlaying().size() == 1) {
-			Bukkit.broadcastMessage(String.format(Util.formatString("&aThe game is over %s has won the game"), game.getPlaying().toArray(new Player[0])[0].getName()));
-		} else Bukkit.broadcastMessage(Util.formatString("&aThe game is over, there was no clear winner"));
+		game.stats().renderTopList(game.stats().getCurrentPlayTimes(), 3, forceWinner);
 		new BukkitRunnable() {
 			@Override
 			public void run() {

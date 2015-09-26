@@ -18,6 +18,7 @@ import co.neweden.gamesmanager.game.GameConfig;
 import co.neweden.gamesmanager.game.GameConfig.Scope;
 import co.neweden.gamesmanager.game.ReservedSlots;
 import co.neweden.gamesmanager.game.Spectate;
+import co.neweden.gamesmanager.game.Statistics;
 import co.neweden.gamesmanager.game.WorldsManager;
 import co.neweden.gamesmanager.game.countdown.CMain;
 import co.neweden.gamesmanager.gametype.HungerGames;
@@ -39,6 +40,7 @@ public class Game implements Listener {
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
 		worldsManager = new WorldsManager(this);
+		statistics = new Statistics(this);
 		Bukkit.getServer().getPluginManager().registerEvents(this, getPlugin());
 		Event event = new Event(instance);
 		Set<Player> players = new HashSet<Player>();
@@ -85,6 +87,9 @@ public class Game implements Listener {
 	
 	private WorldsManager worldsManager;
 	public WorldsManager worlds() { return this.worldsManager; }
+	
+	private Statistics statistics;
+	public Statistics stats() { return this.statistics; }
 	
 	public GMMain getPlugin() { return plugin; }
 	@Deprecated
