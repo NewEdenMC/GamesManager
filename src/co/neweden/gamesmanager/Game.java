@@ -188,6 +188,7 @@ public class Game implements Listener {
 		player.resetPlayerWeather();
 		player.setLevel(0);
 		player.setFlying(false);
+		player.setAllowFlight(false);
 		player.setSaturation(10);
 		player.setExhaustion(0F);
 		player.setFoodLevel(20);
@@ -200,21 +201,15 @@ public class Game implements Listener {
 	}
 	
 	public Set<Player> getPlayers() {
-		/*Set<Player> players = new HashSet<Player>();
-		Set<World> worlds = getWorlds();
-		if (worlds.isEmpty()) return players;
-		for (World world : worlds) {
-			for (Player player : world.getPlayers()) {
-				players.add(player);
-			}
-		}
-		return players;*/
-		return this.players;
+		return new HashSet<Player>(players);
 	}
 	
 	public Set<Player> getPlaying() {
-		// TODO: Add spectate integration
-		return getPlayers();
+		Set<Player> players = getPlayers();
+		for (Player player : spectate.getSpectators()) {
+			players.remove(player);
+		}
+		return players;
 	}
 	
 	public void broadcast(String message) {

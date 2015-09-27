@@ -69,7 +69,7 @@ public class HungerGames implements GameType, Listener {
 	public void onJoin(GMPlayerJoinGameEvent event) {
 		if (game.getPlayers().contains(event.getPlayer()) == false) return;
 		game.resetDataForPlayer(event.getPlayer());
-		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Hunger Games, current players " + game.getPlayers().size()));
+		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Hunger Games, current players " + game.getPlaying().size()));
 		switch (status) {
 			case "prelobby":
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
@@ -252,6 +252,7 @@ public class HungerGames implements GameType, Listener {
 	
 	public void endGame() { endGame(null); }
 	public void endGame(Player forceWinner) {
+		game.spectate().disableSpectateMode();
 		game.countdown().stopAll();
 		game.freezePlayers().disable();
 		game.stats().stopListening();

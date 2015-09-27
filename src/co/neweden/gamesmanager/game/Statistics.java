@@ -18,6 +18,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import co.neweden.gamesmanager.Game;
 import co.neweden.gamesmanager.event.GMPlayerJoinGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerLeaveGameEvent;
+import co.neweden.gamesmanager.event.GMPlayerSpectatingEvent;
 
 public class Statistics implements Listener {
 	
@@ -49,15 +50,22 @@ public class Statistics implements Listener {
 	
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onJoinGame(GMPlayerJoinGameEvent event) {
-		if (listen == false) return;
-		if (game.getPlaying().contains(event.getPlayer()) == false) return;
+		if (listen == false &&
+			game.getPlaying().contains(event.getPlayer()) == false) return;
 		joinedAt.put(event.getPlayer(), System.currentTimeMillis());
 	}
 	
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onLeaveGame(GMPlayerLeaveGameEvent event) {
-		if (listen == false) return;
-		if (game.getPlaying().contains(event.getPlayer()) == false) return;
+		if (listen == false &&
+			game.getPlaying().contains(event.getPlayer()) == false) return;
+		leftAt.put(event.getPlayer(), System.currentTimeMillis());
+	}
+	
+	@EventHandler (priority = EventPriority.MONITOR)
+	public void onPlayerSpectating(GMPlayerSpectatingEvent event) {
+		if (listen == false &&
+			game.getPlaying().contains(event.getPlayer()) == false) return;
 		leftAt.put(event.getPlayer(), System.currentTimeMillis());
 	}
 	
