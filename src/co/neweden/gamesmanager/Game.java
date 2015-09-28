@@ -17,7 +17,7 @@ import co.neweden.gamesmanager.game.FreezePlayers;
 import co.neweden.gamesmanager.game.GameConfig;
 import co.neweden.gamesmanager.game.GameConfig.Scope;
 import co.neweden.gamesmanager.game.ReservedSlots;
-import co.neweden.gamesmanager.game.Spectate;
+import co.neweden.gamesmanager.game.spectate.Spectate;
 import co.neweden.gamesmanager.game.Statistics;
 import co.neweden.gamesmanager.game.WorldsManager;
 import co.neweden.gamesmanager.game.countdown.CMain;
