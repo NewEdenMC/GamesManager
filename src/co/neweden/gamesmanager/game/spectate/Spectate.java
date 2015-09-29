@@ -74,6 +74,7 @@ public class Spectate implements Listener {
 			enableSpec == true &&
 			playersCanSpectate() == true)
 		{
+			refreshHiddenPlayers();
 			activateSpectate(event.getPlayer());
 		}
 	}
@@ -149,7 +150,9 @@ public class Spectate implements Listener {
 	}
 	
 	public void refreshHiddenPlayers() {
-		
+		for (Player player : spectators) {
+			hidePlayerFromGame(player);
+		}
 	}
 	
 	public void hidePlayerFromGame(Player player) {
