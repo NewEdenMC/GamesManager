@@ -23,36 +23,6 @@ public class GamesManager {
 	public static Set<Game> getEnabledGames() { return getGames(true); }
 	
 	private static Set<Game> getGames(Boolean returnOnlyEnabledGames) {
-    	/*Set<String> keys = plugin.getConfig().getKeys(true);
-    	if (keys.isEmpty()) {
-    		return null;
-    	}
-    	
-    	Set<Game> games = new HashSet<Game>();
-    	Boolean add;
-    	String skey;
-    	for (String key : keys) {
-    		if (key.length() > 5) {
-    			add = true;
-    			if (!key.substring(0, 6).equals("games.")) add = false; // add only if key starts with "worlds."
-    			skey = key.substring(6);
-    			if (skey.contains(".")) add = false; // remove "worlds." and only add if key doesn't container a "."
-    			if (returnOnlyEnabledGames == true) { // run code if disabled games should be filtered out
-    				if (plugin.getConfig().isBoolean("games." + skey + ".enabled")) { // run if value is specified in the config
-    					if (plugin.getConfig().getBoolean("games." + skey + ".enabled") == false)
-    						add = false; // Set add to false if game has been disabled not enabled
-    				} else add = false;
-    			}
-    			if (add == true) {
-    				if (GamesManager.games.containsKey(skey) == false) {
-    					GamesManager.games.put(skey, new Game(plugin, skey));
-    				}
-					games.add(GamesManager.games.get(skey));
-    			}
-    		}
-    	}
-    	if (games.size() == 0) return null;*/
-    	
     	return new HashSet<Game>(games.values());
 	}
 	
