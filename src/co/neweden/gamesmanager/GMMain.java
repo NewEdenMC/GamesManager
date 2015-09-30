@@ -15,6 +15,7 @@ public class GMMain extends JavaPlugin implements Listener {
 	
 	@Override
 	public void onEnable() {
+		GamesManager.plugin = this;
 		this.saveDefaultConfig();
 		setupGames();
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
