@@ -52,7 +52,7 @@ public class Chests implements Listener {
 		if (worlds.isEmpty())
 			worlds.addAll(game.worlds().getWorlds());
 		if (configPath.equals(""))
-			configPath = game.getConfigPath() + ".items";
+			configPath = "items";
 		listen = true;
 		return this;
 	}

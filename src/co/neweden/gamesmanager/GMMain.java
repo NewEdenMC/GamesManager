@@ -1,5 +1,6 @@
 package co.neweden.gamesmanager;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ public class GMMain extends JavaPlugin implements Listener {
 	public void onEnable() {
 		GamesManager.plugin = this;
 		this.saveDefaultConfig();
-		setupGames();
+		loadGames();
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		getServer().getPluginManager().registerEvents(new Event(this), this);
 	}
@@ -62,19 +63,41 @@ public class GMMain extends JavaPlugin implements Listener {
 		return true;
 	}
 	
-	private void setupGames() {
-		if (GamesManager.getEnabledGames() == null) {
-			logger.info(String.format("[%s] Unable to get any games from the config or all games have been disabled, no games will be run", getDescription().getName()));
-			return;
-		}
-		for (Game game : GamesManager.getEnabledGames()) {
-			if (game.getTypeClass() != null) {
-				GameType gameClass = game.getTypeClass();
-				Bukkit.getServer().getPluginManager().registerEvents((Listener) gameClass, this);
-				gameClass.start();
-				logger.info(String.format("[%s] Starting game %s of type %s", getDescription().getName(), game.getName(), game.getType()));
+	private void loadGames() {
+		logger.info(String.format("[%s] Setting up games", getDescription().getName()));
+		getDataFolder().mkdir();
+		File[] files;
+		try {
+			files = getDataFolder().listFiles();
+		} catch (NullPointerException e) { return; }
+		
+		for (int i = 0; i < files.length; i++) {
+			String fName = files[i].getName();
+			// Skip to next file if this is the config file, is not a file and isn't a YML file
+			if (files[i].equals("config.yml") || !files[i].isFile() || !fName.substring(fName.length() - 4, fName.length()).equals(".yml")) {
+				continue;
 			}
+			String name = fName.substring(0, fName.length() - 4);
+			if (loadGame(name) == true)
+				logger.info(String.format("[%s] Game %s now loaded", getDescription().getName(), name));
 		}
+		
+		if (GamesManager.games.isEmpty()) {
+			logger.info(String.format("[%s] No games to load", getDescription().getName()));
+		}
+	}
+	
+	private boolean loadGame(String name) {
+		Game game = new Game(this, name);
+		if (game.getConfig().getBoolean("enabled", false) == false)
+			return false;
+		
+		GameType gameClass = game.getTypeClass();
+		if (gameClass == null) return false;
+		Bukkit.getServer().getPluginManager().registerEvents((Listener) gameClass, this);
+		GamesManager.games.put(name, game);
+		gameClass.start();
+		return true;
 	}
 	
 }

@@ -39,7 +39,7 @@ public class HungerGames_Dev implements GameType, Listener {
 		game.setPVP(false);
 		game.worlds().saveSnapshots();
 		new BlockManager(game)
-			.setConfigPath(game.getConfigPath() + ".allowedBlocks")
+			.setConfigPath("allowedBlocks")
 			.filterType(FilterType.WHITELIST)
 			.startListening();
 		preLobby();
@@ -218,14 +218,14 @@ public class HungerGames_Dev implements GameType, Listener {
 		}
 		
 		Location dmCentre = null;
-		if (game.getPlugin().getConfig().isString(game.getMapConfigPath() + ".dmcentre")) {
-			if (Util.verifyLocation(game.getPlugin().getConfig().getString(game.getMapConfigPath() + ".dmcentre"))) {
-				dmCentre = Util.parseLocation(game.getPlugin().getConfig().getString(game.getMapConfigPath() + ".dmcentre"));
+		if (game.getConfig().isString(game.getMapConfigPath() + ".dmcentre")) {
+			if (Util.verifyLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"))) {
+				dmCentre = Util.parseLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"));
 			}
 		}
 		int dmRadius = 25;
-		if (game.getPlugin().getConfig().isInt(game.getMapConfigPath() + ".dmborderradius")) {
-			dmRadius = game.getPlugin().getConfig().getInt(game.getMapConfigPath() + ".dmborderradius");
+		if (game.getConfig().isInt(game.getMapConfigPath() + ".dmborderradius")) {
+			dmRadius = game.getConfig().getInt(game.getMapConfigPath() + ".dmborderradius");
 		}
 		for (Location loc : game.getDMSpawnLocations()) {
 			if (loc != null) {
@@ -252,7 +252,6 @@ public class HungerGames_Dev implements GameType, Listener {
 	
 	public void endGame() { endGame(null); }
 	public void endGame(Player forceWinner) {
-		game.spectate().disableSpectateMode();
 		game.countdown().stopAll();
 		game.freezePlayers().disable();
 		game.stats().stopListening();
@@ -261,6 +260,7 @@ public class HungerGames_Dev implements GameType, Listener {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
+				game.spectate().disableSpectateMode();
 				game.kickAllPlayers("The game has ended and is now resetting");
 				game.worlds().restoreWorlds();
 				GamesManager.restartGame(game);

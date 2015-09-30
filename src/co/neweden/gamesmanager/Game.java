@@ -15,7 +15,6 @@ import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.FreezePlayers;
 import co.neweden.gamesmanager.game.GameConfig;
-import co.neweden.gamesmanager.game.GameConfig.Scope;
 import co.neweden.gamesmanager.game.ReservedSlots;
 import co.neweden.gamesmanager.game.spectate.Spectate;
 import co.neweden.gamesmanager.game.Statistics;
@@ -92,14 +91,11 @@ public class Game implements Listener {
 	public Statistics stats() { return this.statistics; }
 	
 	public GMMain getPlugin() { return plugin; }
-	@Deprecated
-	public String getConfigPath() { return "games." + getName(); }
-	@Deprecated
-	public String getMapConfigPath() { return getConfigPath() + ".maps." + mapName; }
 	public String getName() { return gamename; }
 	public String getCurrentMapName() { return mapName; }
-	public String getType() { return getConfig().getString("type", null, Scope.GAME); }
-	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false, Scope.GAME); }
+	public String getType() { return getConfig().getString("type", null); }
+	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false); }
+	public String getMapConfigPath() { return "maps." + mapName; }
 	
 	public GameType getTypeClass() {
 		if (gameClass != null) return gameClass;
@@ -120,8 +116,8 @@ public class Game implements Listener {
 		return gameClass;
 	}
 	
-	public Integer getMinPlayerCount() { return getConfig().getInteger("minplayers", 0); }
-	public Integer getMaxPlayerCount() { return getConfig().getInteger("maxplayers", 0); }
+	public Integer getMinPlayerCount() { return getConfig().getInt("minplayers", 0); }
+	public Integer getMaxPlayerCount() { return getConfig().getInt("maxplayers", 0); }
 	
 	public Set<Location> getSpawnLocations() {
 		Set<Location> spawnLocations = new HashSet<Location>();
@@ -135,9 +131,9 @@ public class Game implements Listener {
 	}
 	
 	public Location getLobbySpawnLocation() { return getConfig().getLocation("lobbyspawn", null); }
-	public Location getSpecSpawnLocation() { return getConfig().getLocation("specspawn", null); }
-	public Set<Location> getGameSpawnLocations() { return getConfigLocations("gamespawns"); }
-	public Set<Location> getDMSpawnLocations() { return getConfigLocations("dmspawns"); }
+	public Location getSpecSpawnLocation() { return getConfig().getLocation(getMapConfigPath() + ".specspawn", null); }
+	public Set<Location> getGameSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".gamespawns"); }
+	public Set<Location> getDMSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".dmspawns"); }
 	
 	public Set<Location> getConfigLocations(String configKey) {
 		return new HashSet<>(getConfig().getLocationList(configKey, new ArrayList<Location>(), true));

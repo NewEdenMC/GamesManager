@@ -1,7 +1,9 @@
 package co.neweden.gamesmanager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -13,7 +15,7 @@ import org.bukkit.event.Listener;
 public class GamesManager {
 	
 	protected static GMMain plugin;
-	private static HashMap<String, Game> games = new HashMap<String, Game>();
+	protected static HashMap<String, Game> games = new HashMap<String, Game>();
 	
 	private GamesManager() { }
 	
@@ -21,7 +23,7 @@ public class GamesManager {
 	public static Set<Game> getEnabledGames() { return getGames(true); }
 	
 	private static Set<Game> getGames(Boolean returnOnlyEnabledGames) {
-    	Set<String> keys = plugin.getConfig().getKeys(true);
+    	/*Set<String> keys = plugin.getConfig().getKeys(true);
     	if (keys.isEmpty()) {
     		return null;
     	}
@@ -49,9 +51,9 @@ public class GamesManager {
     			}
     		}
     	}
-    	if (games.size() == 0) return null;
+    	if (games.size() == 0) return null;*/
     	
-    	return games;
+    	return new HashSet<Game>(games.values());
 	}
 	
 	public static void restartGame(Game game) {
