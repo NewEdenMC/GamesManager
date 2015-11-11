@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 
 public interface GameType {
 	
-	public void start();
-	public void onCommand(CommandSender sender, String[] args);
+	void start();
+	void onCommand(CommandSender sender, String[] args);
 	
 }
