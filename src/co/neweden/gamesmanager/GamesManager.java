@@ -8,7 +8,6 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 public class GamesManager {
 	
@@ -24,22 +23,30 @@ public class GamesManager {
     	return new HashSet<Game>(games.values());
 	}
 	
-	public static void restartGame(Game game) {
-		if (games.containsKey(game.getName()) == false) return;
+	public static Game startGame(String gameName) {
+		if (games.containsKey(gameName))
+			return games.get(gameName);
 		
-		String gameName = game.getName();
+		for (String name : plugin.getGameConfigs().keySet()) {
+			if (name.equals(gameName)) {
+				return plugin.loadGame(name);
+			}
+		}
+		return null;
+	}
+	
+	public static boolean stopGame (Game game) {
+		if (games.containsKey(game.getName()) == false) return false;
 		game.cleanUp();
 		games.remove(game.getName());
-		for (Game newGame : getEnabledGames()) {
-			if (newGame.getName().equals(gameName) == false ||
-				game.isEnabled() == false ||
-				game.getTypeClass() == null) continue;
-			
-			Bukkit.getServer().getLogger().info(String.format("[%s] Restarting game %s of type %s", plugin.getDescription().getName(), game.getName(), game.getType()));
-			GameType gameClass = newGame.getTypeClass();
-			Bukkit.getServer().getPluginManager().registerEvents((Listener) gameClass, plugin);
-			gameClass.start();
-		}
+		return true;
+	}
+	
+	public static Game restartGame(Game game) {
+		plugin.getLogger().info(String.format("Restarting game %s of type %s", game.getName(), game.getType()));
+		String name = game.getName();
+		if (stopGame(game) == false) return null;
+		return plugin.loadGame(name);
 	}
 	
 	public static boolean isPlayerInAnyGame(Player player) {
