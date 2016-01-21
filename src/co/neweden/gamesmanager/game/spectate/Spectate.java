@@ -3,12 +3,7 @@ package co.neweden.gamesmanager.game.spectate;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.minecraft.server.v1_8_R1.EntityPlayer;
-import net.minecraft.server.v1_8_R1.EnumClientCommand;
-import net.minecraft.server.v1_8_R1.PacketPlayInClientCommand;
-
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -105,9 +100,7 @@ public class Spectate implements Listener {
 		}
 		new BukkitRunnable() {
 			@Override public void run() {
-				PacketPlayInClientCommand in = new PacketPlayInClientCommand(EnumClientCommand.PERFORM_RESPAWN); // Gets the packet class
-				EntityPlayer cPlayer = ((CraftPlayer)event.getEntity()).getHandle(); // Gets the EntityPlayer class
-				cPlayer.playerConnection.a(in); // Handles the rest of it
+				event.getEntity().spigot().respawn();
 			}
 		}.runTaskLater(game.getPlugin(), 1L);
 	}
