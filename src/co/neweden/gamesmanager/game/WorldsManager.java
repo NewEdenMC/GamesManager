@@ -7,11 +7,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
-import net.minecraft.server.v1_8_R1.Material;
-
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.event.EventHandler;
@@ -120,8 +119,8 @@ public class WorldsManager implements Listener {
 				nLoc.setZ(pLoc.getZ() + 3);
 		}
 		
-		if (nLoc.getBlock() != Material.AIR) {
-			for (int i = (int) nLoc.getY(); nLoc.getBlock() == Material.AIR; ++i) {
+		if (nLoc.getBlock().getType() != Material.AIR) {
+			for (int i = (int) nLoc.getY(); nLoc.getBlock().getType() == Material.AIR; ++i) {
 				nLoc.setY((double) i);
 			}
 		}
