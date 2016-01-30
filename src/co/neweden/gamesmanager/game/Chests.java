@@ -92,16 +92,16 @@ public class Chests implements Listener {
 				inv = chest.getInventory();
 			}
 			inv.clear();
-			for (GMItem item : getRandomChestItems(inv.getSize())) {
+			for (ItemStackWrapper item : getRandomChestItems(inv.getSize())) {
 				inv.setItem(item.getSlot(), item.getItemStack());
 			}
 		} else return;
 	}
 	
-	public Set<GMItem> getRandomChestItems(int slots) {
-		Set<GMItem> items = new HashSet<GMItem>();
+	public Set<ItemStackWrapper> getRandomChestItems(int slots) {
+		Set<ItemStackWrapper> items = new HashSet<ItemStackWrapper>();
 		if (game.getPlugin().getConfig().isList(configPath)) {
-			List<GMItem> itemArray = new ArrayList<GMItem>();
+			List<ItemStackWrapper> itemArray = new ArrayList<ItemStackWrapper>();
 			itemArray.addAll(getConfigItemList());
 			Random rand = new Random();
 			int amountToAdd = rand.nextInt((this.maxToFill - this.minToFill) + 1) + this.minToFill; // add support for dynamic range
@@ -118,7 +118,7 @@ public class Chests implements Listener {
 			// TODO: Add support for chance values
 			
 			// Generate a list of random items to add
-			List<GMItem> itemsToAdd = new ArrayList<GMItem>();
+			List<ItemStackWrapper> itemsToAdd = new ArrayList<ItemStackWrapper>();
 			while (itemsToAdd.size() <= amountToAdd) {
 				int index = rand.nextInt(itemArray.size() - 1);
 				itemsToAdd.add(itemArray.get(index));
@@ -126,7 +126,7 @@ public class Chests implements Listener {
 			}
 			
 			for (int i = 0; i <= amountToAdd - 1; i++) {
-				GMItem item = itemsToAdd.get(i);
+				ItemStackWrapper item = itemsToAdd.get(i);
 				item.setSlot(slotsToAdd.get(i));
 				items.add(item);
 			}
@@ -134,8 +134,8 @@ public class Chests implements Listener {
 		return items;
 	}
 	
-	public List<GMItem> getConfigItemList() {
-		List<GMItem> items = new ArrayList<GMItem>();
+	public List<ItemStackWrapper> getConfigItemList() {
+		List<ItemStackWrapper> items = new ArrayList<ItemStackWrapper>();
 		if (game.getPlugin().getConfig().isList(configPath) == false) return items;
 		for (Object item : game.getPlugin().getConfig().getList(configPath)) {
 			if (Util.verifyConfigItem(item.toString())) {

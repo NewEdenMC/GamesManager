@@ -6,7 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
-import co.neweden.gamesmanager.game.GMItem;
+import co.neweden.gamesmanager.game.ItemStackWrapper;
 
 public final class Util {
 	
@@ -87,9 +87,9 @@ public final class Util {
 		return false;
 	}
 	
-	public static GMItem parseConfigItem(String itemData) {
+	public static ItemStackWrapper parseConfigItem(String itemData) {
 		String[] parts = itemData.split(" ");
-		GMItem item = new GMItem();
+		ItemStackWrapper item = new ItemStackWrapper();
 		item.setItemStack(new ItemStack(Material.getMaterial(parts[0].toUpperCase())));
 		return item;
 	}
