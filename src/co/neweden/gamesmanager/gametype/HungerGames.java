@@ -2,6 +2,7 @@ package co.neweden.gamesmanager.gametype;
 
 import java.util.List;
 
+import co.neweden.gamesmanager.game.config.Parser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -219,8 +220,8 @@ public class HungerGames implements GameType, Listener {
 		
 		Location dmCentre = null;
 		if (game.getConfig().isString(game.getMapConfigPath() + ".dmcentre")) {
-			if (Util.verifyLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"))) {
-				dmCentre = Util.parseLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"));
+			if (Parser.verifyLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"))) {
+				dmCentre = Parser.parseLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"));
 			}
 		}
 		int dmRadius = 25;
