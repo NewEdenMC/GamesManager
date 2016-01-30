@@ -3,6 +3,7 @@ package co.neweden.gamesmanager.game;
 import java.util.HashSet;
 import java.util.Set;
 
+import co.neweden.gamesmanager.game.config.Parser;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -58,8 +59,8 @@ public class BlockManager implements Listener {
 	private void addConfigBlocks() {
 		if (game.getPlugin().getConfig().isList(configPath) == false) return;
 		for (Object item : game.getPlugin().getConfig().getList(configPath)) {
-			if (Util.verifyConfigItem(item.toString())) {
-				blocks.add(Util.parseConfigItem(item.toString()).getItemStack().getType());
+			if (Parser.verifyConfigItem(item.toString())) {
+				blocks.add(Parser.parseConfigItem(item.toString()).getItemStack().getType());
 			}
 		}
 	}

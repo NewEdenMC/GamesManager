@@ -1,6 +1,5 @@
 package co.neweden.gamesmanager.game.config;
 
-import co.neweden.gamesmanager.Util;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
@@ -44,8 +43,8 @@ public class TypeWrappers {
     public Location getLocation(String path, Location defaultValue) { return getLocation(path, defaultValue, false); }
     public Location getLocation(String path, Location defaultValue, Boolean cleanLocation) {
         if (isString(path)) {
-            if (Util.verifyLocation(getString(path)))
-                return Util.parseLocation(getString(path), cleanLocation);
+            if (Parser.verifyLocation(getString(path)))
+                return Parser.parseLocation(getString(path), cleanLocation);
         }
         return defaultValue;
     }
@@ -76,8 +75,8 @@ public class TypeWrappers {
         List<Location> locList = new ArrayList<>();
         for (Object location : list) {
             String loc = location.toString();
-            if (Util.verifyLocation(loc) == true)
-                locList.add(Util.parseLocation(loc, cleanLocation));
+            if (Parser.verifyLocation(loc) == true)
+                locList.add(Parser.parseLocation(loc, cleanLocation));
         }
         return locList;
     }
