@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import co.neweden.gamesmanager.game.config.MultiConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -14,7 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.FreezePlayers;
-import co.neweden.gamesmanager.game.GameConfig;
 import co.neweden.gamesmanager.game.ReservedSlots;
 import co.neweden.gamesmanager.game.spectate.Spectate;
 import co.neweden.gamesmanager.game.Statistics;
@@ -34,7 +34,7 @@ public class Game implements Listener {
 	public Game(GMMain instance, String gamename) {
 		this.plugin = instance;
 		this.gamename = gamename;
-		gameConfig = new GameConfig(this);
+		gameConfig = new MultiConfig(this);
 		freezePlayers = new FreezePlayers(this);
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
@@ -72,8 +72,8 @@ public class Game implements Listener {
 		}
 	}
 	
-	private GameConfig gameConfig;
-	public GameConfig getConfig() { return this.gameConfig; }
+	private MultiConfig gameConfig;
+	public MultiConfig getConfig() { return this.gameConfig; }
 	
 	private FreezePlayers freezePlayers;
 	public FreezePlayers freezePlayers() { return freezePlayers; }
