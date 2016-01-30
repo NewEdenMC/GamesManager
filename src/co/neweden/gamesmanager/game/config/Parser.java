@@ -11,6 +11,8 @@ public class Parser {
 
     private Parser() { }
 
+    // Location
+
     public static boolean verifyLocation(String location) {
         if (location.contains(" ")) {
             String[] parts = location.split(" ");
@@ -71,7 +73,9 @@ public class Parser {
         return location;
     }
 
-    public static boolean verifyConfigItem(String itemData) {
+    // ItemStack
+
+    public static boolean verifyItemStack(String itemData) {
         //if (itemData.contains(" ")) {
         String[] parts = itemData.split(" ");
         if (parts.length == 1) {
@@ -86,7 +90,7 @@ public class Parser {
         return false;
     }
 
-    public static ItemStackWrapper parseConfigItem(String itemData) {
+    public static ItemStackWrapper parseItemStack(String itemData) {
         String[] parts = itemData.split(" ");
         ItemStackWrapper item = new ItemStackWrapper();
         item.setItemStack(new ItemStack(Material.getMaterial(parts[0].toUpperCase())));

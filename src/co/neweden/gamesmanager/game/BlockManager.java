@@ -59,8 +59,8 @@ public class BlockManager implements Listener {
 	private void addConfigBlocks() {
 		if (game.getPlugin().getConfig().isList(configPath) == false) return;
 		for (Object item : game.getPlugin().getConfig().getList(configPath)) {
-			if (Parser.verifyConfigItem(item.toString())) {
-				blocks.add(Parser.parseConfigItem(item.toString()).getItemStack().getType());
+			if (Parser.verifyItemStack(item.toString())) {
+				blocks.add(Parser.parseItemStack(item.toString()).getItemStack().getType());
 			}
 		}
 	}

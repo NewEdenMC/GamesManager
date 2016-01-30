@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import co.neweden.gamesmanager.game.config.Parser;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,7 +21,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
 import co.neweden.gamesmanager.Game;
-import co.neweden.gamesmanager.Util;
 
 public class Chests implements Listener {
 	
@@ -138,8 +138,8 @@ public class Chests implements Listener {
 		List<ItemStackWrapper> items = new ArrayList<ItemStackWrapper>();
 		if (game.getPlugin().getConfig().isList(configPath) == false) return items;
 		for (Object item : game.getPlugin().getConfig().getList(configPath)) {
-			if (Util.verifyConfigItem(item.toString())) {
-				items.add(Util.parseConfigItem(item.toString()));
+			if (Parser.verifyItemStack(item.toString())) {
+				items.add(Parser.parseItemStack(item.toString()));
 			}
 		}
 		return items;
