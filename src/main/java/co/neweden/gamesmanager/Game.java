@@ -6,12 +6,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import co.neweden.gamesmanager.game.config.MultiConfig;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.FreezePlayers;
@@ -23,25 +21,21 @@ import co.neweden.gamesmanager.game.countdown.CMain;
 import co.neweden.gamesmanager.gametype.HungerGames;
 import co.neweden.gamesmanager.gametype.HungerGames_Dev;
 
-public class Game implements Listener {
+public class Game {
 	
-	private GMMain plugin;
-	private String gamename;
-	private GameType gameClass = null;
+	private String gameName;
 	private Set<Player> players = new HashSet<Player>();
 	private String mapName = "default";
 	
-	public Game(GMMain instance, String gamename) {
-		this.plugin = instance;
-		this.gamename = gamename;
+	public Game(String gameName) {
+		this.gameName = gameName;
 		gameConfig = new MultiConfig(this);
 		freezePlayers = new FreezePlayers(this);
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
 		worldsManager = new WorldsManager(this);
 		statistics = new Statistics(this);
-		Bukkit.getServer().getPluginManager().registerEvents(this, getPlugin());
-		Event event = new Event(instance);
+		Event event = new Event(getPlugin());
 		Set<Player> players = new HashSet<Player>();
 		for (World world : worlds().getWorlds()) {
 			players.addAll(world.getPlayers());
@@ -56,9 +50,9 @@ public class Game implements Listener {
 		spectate.disableSpectateMode();
 		resetPVP();
 	}
-	
-	public void preparePlayer(Player player) { players.add(player); Bukkit.getLogger().info(String.format("[%s] Preparing player %s for %s", plugin.getName(), player.getName(), getName())); }
-	public void releasePlayer(Player player) { players.remove(player); Bukkit.getLogger().info(String.format("[%s] Releasing player %s from %s", plugin.getName(), player.getName(), getName())); }
+
+	public void preparePlayer(Player player) { players.add(player); getPlugin().getLogger().info(String.format("Preparing player %s for %s", player.getName(), getName())); }
+	public void releasePlayer(Player player) { players.remove(player); getPlugin().getLogger().info(String.format("Releasing player %s from %s", player.getName(), getName())); }
 	
 	public void refreshPlayerList() {
 		for (Player player : players) {
@@ -90,32 +84,12 @@ public class Game implements Listener {
 	private Statistics statistics;
 	public Statistics stats() { return this.statistics; }
 	
-	public GMMain getPlugin() { return plugin; }
-	public String getName() { return gamename; }
+	public GMMain getPlugin() { return GamesManager.plugin; }
+	public String getName() { return gameName; }
 	public String getCurrentMapName() { return mapName; }
 	public String getType() { return getConfig().getString("type", null); }
 	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false); }
 	public String getMapConfigPath() { return "maps." + mapName; }
-	
-	public GameType getTypeClass() {
-		if (gameClass != null) return gameClass;
-		if (getType() == null) {
-			getPlugin().logger.warning(String.format("[%s] Unable to determine the game type to load for %s, please check your config.", getPlugin().getDescription().getName(), getName()));
-			return null;
-		}
-		switch (getType()) {
-			case "hungergames":
-				gameClass = new HungerGames(this);
-				break;
-			case "hungergames_dev":
-				gameClass = new HungerGames_Dev(this);
-				break;
-			default: getPlugin().logger.warning(String.format("[%s] Game type %s for %s is either not valid or is not installed, please check your config", getPlugin().getDescription().getName(), getType(), getName()));
-				return null;
-		}
-		return gameClass;
-	}
-	
 	public Integer getMinPlayerCount() { return getConfig().getInt("minplayers", 0); }
 	public Integer getMaxPlayerCount() { return getConfig().getInt("maxplayers", 0); }
 	

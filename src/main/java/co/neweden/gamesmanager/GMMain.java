@@ -1,11 +1,11 @@
 package co.neweden.gamesmanager;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GMMain extends JavaPlugin {
@@ -80,18 +80,45 @@ public class GMMain extends JavaPlugin {
 	}
 	
 	protected Game loadGame(String name) {
-		if (getConfig().getBoolean("games." + name + ".enabled", false) == false)
+		getLogger().info(String.format("Attempting to load %s", name));
+		String type = getConfig().getString("games." + name + ".type", null);
+		Boolean enabled = getConfig().getBoolean("games." + name + ".enabled", false);
+
+		if (type == null || enabled == false) {
+			getLogger().info(String.format("Game %s is either disabled or no Game Type is specified, skipping", name));
 			return null;
+		}
 
-		Game game = new Game(this, name);
+		GameType typeClass;
+		try {
+			typeClass = instantiateGameType("co.neweden.gamesmanager.gametype." + type, GameType.class, name);
+		} catch (IllegalStateException ex) {
+			getLogger().severe(String.format("Unable to find the Game Type for %s, make sure  the correct Game Type is provided in the %s config.", name, getName()));
+			ex.printStackTrace();
+			return null;
+		}
 
-		GameType gameClass = game.getTypeClass();
-		if (gameClass == null) return null;
-		Bukkit.getServer().getPluginManager().registerEvents((Listener) gameClass, this);
-		GamesManager.games.put(name, game);
-		gameClass.start();
+		GamesManager.games.put(name, (Game) typeClass);
+		typeClass.start();
 		getLogger().info(String.format("Game %s now loaded", name));
-		return game;
+		return (Game) typeClass;
 	}
-	
+
+	private GameType instantiateGameType(String className, Class<GameType> type, String gameName){
+		try{
+			Constructor c = Class.forName(className).getConstructor(String.class);
+			return type.cast(c.newInstance(gameName));
+		} catch(final NoSuchMethodException e){
+			throw new IllegalStateException(e);
+		} catch(final InvocationTargetException e){
+			throw new IllegalStateException(e);
+		} catch(final InstantiationException e){
+			throw new IllegalStateException(e);
+		} catch(final IllegalAccessException e){
+			throw new IllegalStateException(e);
+		} catch(final ClassNotFoundException e){
+			throw new IllegalStateException(e);
+		}
+	}
+
 }

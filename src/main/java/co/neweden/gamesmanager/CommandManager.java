@@ -40,13 +40,9 @@ public class CommandManager implements CommandExecutor {
             }
         }
 
-        if (game.getTypeClass() == null) {
-            sender.sendMessage(String.format(Util.formatString("&cThe game %s is of the type %s however the matching type class does not exist."), game.getName(), game.getType()));
-            return true;
-        }
-
         String[] gArgs = Arrays.copyOfRange(args, 1, args.length);
-        game.getTypeClass().onCommand(sender, gArgs);
+        // TODO: doesn't work with new structure
+        //game.getGame().onCommand(sender, gArgs);
 
         return true;
     }

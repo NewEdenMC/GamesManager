@@ -26,13 +26,15 @@ import co.neweden.gamesmanager.game.BlockManager.FilterType;
 import co.neweden.gamesmanager.game.Chests;
 import co.neweden.gamesmanager.game.countdown.Countdown;
 
-public class HungerGames implements GameType, Listener {
+public class HungerGames extends Game implements GameType, Listener {
 	
 	Game game;
 	String status;
 	
-	public HungerGames(Game game) {
-		this.game = game;
+	public HungerGames(String name) {
+		super(name);
+		this.game = this;
+		Bukkit.getPluginManager().registerEvents(this, getPlugin());
 	}
 
 	public void start() {
