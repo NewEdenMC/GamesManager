@@ -99,9 +99,9 @@ public class Chests implements Listener {
 	}
 	
 	public Set<ItemStackWrapper> getRandomChestItems(int slots) {
-		Set<ItemStackWrapper> items = new HashSet<ItemStackWrapper>();
-		if (game.getPlugin().getConfig().isList(configPath)) {
-			List<ItemStackWrapper> itemArray = new ArrayList<ItemStackWrapper>();
+		Set<ItemStackWrapper> items = new HashSet<>();
+		if (game.getConfig().isList(configPath)) {
+			List<ItemStackWrapper> itemArray = new ArrayList<>();
 			itemArray.addAll(getConfigItemList());
 			Random rand = new Random();
 			int amountToAdd = rand.nextInt((this.maxToFill - this.minToFill) + 1) + this.minToFill; // add support for dynamic range
@@ -109,7 +109,7 @@ public class Chests implements Listener {
 			if (itemArray.size() < amountToAdd) amountToAdd = itemArray.size();
 			
 			// Generate a list of random inventory slot numbers
-			List<Integer> slotsToAdd = new ArrayList<Integer>();
+			List<Integer> slotsToAdd = new ArrayList<>();
 			while (slotsToAdd.size() <= amountToAdd) {
 				int slot = rand.nextInt(slots - 1);
 				if (slotsToAdd.contains(slot) == false) slotsToAdd.add(slot);
@@ -136,8 +136,8 @@ public class Chests implements Listener {
 	
 	public List<ItemStackWrapper> getConfigItemList() {
 		List<ItemStackWrapper> items = new ArrayList<ItemStackWrapper>();
-		if (game.getPlugin().getConfig().isList(configPath) == false) return items;
-		for (Object item : game.getPlugin().getConfig().getList(configPath)) {
+		if (game.getConfig().isList(configPath) == false) return items;
+		for (Object item : game.getConfig().getList(configPath)) {
 			if (Parser.verifyItemStack(item.toString())) {
 				items.add(Parser.parseItemStack(item.toString()));
 			}
