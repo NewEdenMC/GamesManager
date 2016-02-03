@@ -60,6 +60,13 @@ public class TypeWrappers {
         return (List) get(path, def);
     }
 
+    // List<String>
+
+    public List<String> getStringList(String path) { return getStringList(path, null); }
+    public List<String> getStringList(String path, String def) {
+        return (List<String>) get(path, def);
+    }
+
     // List<Location>
 
     public List<Location> getLocationList(String path) { return getLocationList(path, null); }

@@ -2,6 +2,7 @@ package co.neweden.gamesmanager.gametype;
 
 import java.util.List;
 
+import co.neweden.gamesmanager.game.config.MultiConfig;
 import co.neweden.gamesmanager.game.config.Parser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -58,10 +59,10 @@ public class HungerGames_Dev implements GameType, Listener {
 				sender.sendMessage(Util.formatString("&6This location is already a spawn location."));
 				return;
 			}
-			List<String> locations = game.getPlugin().getConfig().getStringList(game.getMapConfigPath() + ".gamespawns");
+			List<String> locations = game.getConfig().getStringList(game.getMapConfigPath() + ".gamespawns");
 			locations.add(player.getLocation().getWorld().getName() + " " + (int) player.getLocation().getX() + " " + (int) player.getLocation().getY() + " " + (int) player.getLocation().getZ());
-			game.getPlugin().getConfig().set(game.getMapConfigPath() + ".gamespawns", locations);
-			game.getPlugin().saveConfig();
+			game.getConfig().set(game.getMapConfigPath() + ".gamespawns", locations, MultiConfig.Config.MAP);
+			game.getConfig().saveConfig();
 			sender.sendMessage(Util.formatString("&6Game spawn location added"));
 		}
 	}
