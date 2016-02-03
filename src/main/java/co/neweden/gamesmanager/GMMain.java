@@ -1,18 +1,14 @@
 package co.neweden.gamesmanager;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class GMMain extends JavaPlugin implements Listener {
+public class GMMain extends JavaPlugin {
 	
 	public final Logger logger = Logger.getLogger("Minecraft");
 	
@@ -22,9 +18,7 @@ public class GMMain extends JavaPlugin implements Listener {
 		this.saveDefaultConfig();
 		getCommand("gamesmanager").setExecutor(new CommandManager(this));
 		initLoadGames();
-		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		getServer().getPluginManager().registerEvents(new Event(this), this);
-
 	}
 	
 	@Override
@@ -36,13 +30,35 @@ public class GMMain extends JavaPlugin implements Listener {
 		logger.info(String.format("[%s] Setting up games", getDescription().getName()));
 		getDataFolder().mkdir();
 		
-		for (String name : getGameConfigs().keySet()) {
+		for (String name : listGamesFromConfig()) {
 			loadGame(name);
 		}
 		
 		if (GamesManager.games.isEmpty()) {
 			logger.info(String.format("[%s] No games to load", getDescription().getName()));
 		}
+	}
+
+	private Set<String> listGamesFromConfig() {
+		Set<String> keys = getConfig().getKeys(true);
+		if (keys.isEmpty()) {
+			return keys;
+		}
+
+		Set<String> games = new LinkedHashSet<>();
+		Boolean add;
+		String skey;
+		for (String key : keys) {
+			if (key.length() > 5) {
+				add = true;
+				if (!key.substring(0, 6).equals("games.")) add = false; // add only if key starts with "games."
+				skey = key.substring(6);
+				if (skey.contains(".")) add = false; // remove "games." and only add if key doesn't container a "."
+				if (add == true)
+					games.add(skey);
+			}
+		}
+		return games;
 	}
 	
 	protected Map<String, File> getGameConfigs() {
@@ -64,16 +80,17 @@ public class GMMain extends JavaPlugin implements Listener {
 	}
 	
 	protected Game loadGame(String name) {
-		Game game = new Game(this, name);
-		if (game.getConfig().getBoolean("enabled", false) == false)
+		if (getConfig().getBoolean("games." + name + ".enabled", false) == false)
 			return null;
-		
+
+		Game game = new Game(this, name);
+
 		GameType gameClass = game.getTypeClass();
 		if (gameClass == null) return null;
 		Bukkit.getServer().getPluginManager().registerEvents((Listener) gameClass, this);
 		GamesManager.games.put(name, game);
 		gameClass.start();
-		logger.info(String.format("[%s] Game %s now loaded", getDescription().getName(), name));
+		getLogger().info(String.format("Game %s now loaded", name));
 		return game;
 	}
 	
