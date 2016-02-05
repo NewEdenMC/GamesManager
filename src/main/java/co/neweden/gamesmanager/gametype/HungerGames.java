@@ -3,7 +3,6 @@ package co.neweden.gamesmanager.gametype;
 import java.util.List;
 
 import co.neweden.gamesmanager.game.config.MultiConfig;
-import co.neweden.gamesmanager.game.config.Parser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -171,7 +170,6 @@ public class HungerGames extends Game implements GameType, Listener {
 			}
 		}.runTaskLater(game.getPlugin(), 1L);
 		Countdown cd = game.countdown().newCountdown(15)
-			.callMethodAt(14, game, "resetDataForPlayers")
 			.broadcastMessageToGameAt(15, "&bGame will start in 15 seconds, get ready!")
 			.broadcastMessageToGameAt(10, "&bGame will start in 10 seconds!")
 			.callMethodAt(0, this, "inprogress")
@@ -220,17 +218,9 @@ public class HungerGames extends Game implements GameType, Listener {
 		for (Player player : game.spectate().getSpectators()) {
 			player.teleport(game.getSpecSpawnLocation());
 		}
-		
-		Location dmCentre = null;
-		if (game.getConfig().isString(game.getMapConfigPath() + ".dmcentre")) {
-			if (Parser.verifyLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"))) {
-				dmCentre = Parser.parseLocation(game.getConfig().getString(game.getMapConfigPath() + ".dmcentre"));
-			}
-		}
-		int dmRadius = 25;
-		if (game.getPlugin().getConfig().isInt(game.getMapConfigPath() + ".dmborderradius")) {
-			dmRadius = game.getPlugin().getConfig().getInt(game.getMapConfigPath() + ".dmborderradius");
-		}
+
+		Location dmCentre = getConfig().getLocation(game.getMapConfigPath() + ".dmcentre");
+		int dmRadius = getConfig().getInt(game.getMapConfigPath() + ".dmborderradius", 25);
 		for (Location loc : game.getDMSpawnLocations()) {
 			if (loc != null) {
 				game.worlds().setWorldBorder(loc.getWorld(), dmCentre, dmRadius);

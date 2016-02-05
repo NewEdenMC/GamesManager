@@ -1,6 +1,7 @@
 package co.neweden.gamesmanager.game.config;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,14 +40,21 @@ public class TypeWrappers {
 
     // Location
 
+    public Boolean isLocation(String path) {
+        if (isString(path))
+            return Parser.verifyLocation(get(path, null).toString());
+        else return false;
+    }
+
     public Location getLocation(String path) { return getLocation(path, null); }
-    public Location getLocation(String path, Location defaultValue) { return getLocation(path, defaultValue, false); }
-    public Location getLocation(String path, Location defaultValue, Boolean cleanLocation) {
-        if (isString(path)) {
-            if (Parser.verifyLocation(getString(path)))
-                return Parser.parseLocation(getString(path), cleanLocation);
-        }
-        return defaultValue;
+    public Location getLocation(String path, Location def) { return getLocation(path, def, false); }
+    public Location getLocation(String path, Location def, Boolean cleanLocation) {
+        World world = null;
+        if (def != null) world = def.getWorld();
+        if (isLocation(path))
+            return Parser.parseLocation(getString(path), cleanLocation, world);
+        else
+            return def;
     }
 
     // List<?>
@@ -70,20 +78,22 @@ public class TypeWrappers {
     // List<Location>
 
     public List<Location> getLocationList(String path) { return getLocationList(path, null); }
-    public List<Location> getLocationList(String path, List<Location> defaultValue) { return getLocationList(path, defaultValue, false); }
-    public List<Location> getLocationList(String path, List<Location> defaultValue, Boolean cleanLocation) {
+    public List<Location> getLocationList(String path, List<Location> def) { return getLocationList(path, def, false); }
+    public List<Location> getLocationList(String path, List<Location> def, Boolean cleanLocation) {
         if (isList(path)) {
-            return locListLoop(getList(path), cleanLocation);
+            return locListLoop(getList(path), def, cleanLocation);
         }
-        return defaultValue;
+        return def;
     }
 
-    private List<Location> locListLoop(List<?> list, Boolean cleanLocation) {
+    private List<Location> locListLoop(List<?> list, List<Location> def, Boolean cleanLocation) {
         List<Location> locList = new ArrayList<>();
-        for (Object location : list) {
-            String loc = location.toString();
-            if (Parser.verifyLocation(loc) == true)
-                locList.add(Parser.parseLocation(loc, cleanLocation));
+        for (int i = 0; i < list.size(); i++) {
+            World world = null;
+            if (def != null) {
+                if (i < def.size()) world = def.get(i).getWorld();
+            }
+            locList.add(Parser.parseLocation(list.get(i).toString(), cleanLocation, world));
         }
         return locList;
     }

@@ -95,17 +95,19 @@ public class Game {
 	
 	public Set<Location> getSpawnLocations() {
 		Set<Location> spawnLocations = new HashSet<Location>();
-		if (getLobbySpawnLocation() != null)
+		try {
 			spawnLocations.add(getLobbySpawnLocation());
-		if (getSpecSpawnLocation() != null)
+		} catch (NullPointerException ex) { }
+		try {
 			spawnLocations.add(getSpecSpawnLocation());
+		} catch (NullPointerException ex) { }
 		spawnLocations.addAll(getGameSpawnLocations());
 		spawnLocations.addAll(getDMSpawnLocations());
 		return spawnLocations;
 	}
 	
-	public Location getLobbySpawnLocation() { return getConfig().getLocation("lobbyspawn", null); }
-	public Location getSpecSpawnLocation() { return getConfig().getLocation(getMapConfigPath() + ".specspawn", null); }
+	public Location getLobbySpawnLocation() { return getConfig().getLocation("lobbyspawn", null, true); }
+	public Location getSpecSpawnLocation() { return getConfig().getLocation(getMapConfigPath() + ".specspawn", null, true); }
 	public Set<Location> getGameSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".gamespawns"); }
 	public Set<Location> getDMSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".dmspawns"); }
 	

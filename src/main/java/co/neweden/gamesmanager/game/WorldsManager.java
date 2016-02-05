@@ -34,7 +34,7 @@ public class WorldsManager implements Listener {
 		Set<Location> locations = game.getSpawnLocations();
 		if (locations.isEmpty()) return worlds;
 		for (Location loc : locations) {
-			if (loc == null) continue;
+			if (loc == null || loc.getWorld() == null) continue;
 			worlds.add(loc.getWorld());
 		}
 		return worlds;
