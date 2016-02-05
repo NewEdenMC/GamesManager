@@ -93,7 +93,7 @@ public class GMMain extends JavaPlugin {
 		try {
 			typeClass = instantiateGameType("co.neweden.gamesmanager.gametype." + type, GameType.class, name);
 		} catch (IllegalStateException ex) {
-			getLogger().severe(String.format("Unable to find the Game Type for %s, make sure  the correct Game Type is provided in the %s config.", name, getName()));
+			getLogger().severe(String.format("Unable to find or load the Game Type for %s, make sure  the correct Game Type is provided in the %s config.", name, getName()));
 			ex.printStackTrace();
 			return null;
 		}
