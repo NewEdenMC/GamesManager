@@ -18,8 +18,6 @@ import co.neweden.gamesmanager.game.spectate.Spectate;
 import co.neweden.gamesmanager.game.Statistics;
 import co.neweden.gamesmanager.game.WorldsManager;
 import co.neweden.gamesmanager.game.countdown.CMain;
-import co.neweden.gamesmanager.gametype.HungerGames;
-import co.neweden.gamesmanager.gametype.HungerGames_Dev;
 
 public class Game {
 	
