@@ -78,7 +78,7 @@ public class HungerGames extends Game implements GameType, Listener {
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
 				if (game.getLobbySpawnLocation() != null)
 					event.getPlayer().teleport(game.getLobbySpawnLocation());
-				if (game.getPlayers().size() >= 3) {
+				if (game.getPlayers().size() >= getConfig().getInt("minPlayersNeeded", 3)) {
 					lobby();
 				} else {
 					event.getPlayer().sendMessage(Util.formatString("&eThe game is currently in pre-lobby, 3 players minimum needed to start."));
@@ -98,7 +98,7 @@ public class HungerGames extends Game implements GameType, Listener {
 		int playing = game.getPlaying().size() - 1;
 		
 		if (status.equals("lobby")) {
-			if (playing <= 3) preLobby();
+			if (playing <= getConfig().getInt("minPlayersNeeded", 3)) preLobby();
 		}
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			if (playing <= 1) { endGame(); return; }
@@ -142,10 +142,11 @@ public class HungerGames extends Game implements GameType, Listener {
 	
 	private void lobby() {
 		status = "lobby";
+		int time = getConfig().getInt("lobbyCountdownToStart", 60);
 		game.countdown().stopAll();
 		game.broadcast("&eMinimum players reached, game will start in 1 minute"); // TODO: Add more output
-		game.countdown().newCountdown(60)
-			.setBossBarForGameAt(60, "Game will start in %counter%!")
+		game.countdown().newCountdown(time)
+			.setBossBarForGameAt(time, "Game will start in %counter%!")
 			.callMethodAt(1, this, "preIP")
 			.start();
 	}
@@ -188,12 +189,15 @@ public class HungerGames extends Game implements GameType, Listener {
 		game.countdown().newCountdown(30, -1)
 			.broadcastMessageToGameAt(1, "&bCurrent players: %playing%")
 			.start();
-		game.countdown().newCountdown(30)
-			.broadcastMessageToGameAt(30, "&b30 second PvP grace period has started!")
-			.callMethodAt(0, this, "enablePVP")
-			.broadcastMessageToGameAt(0, "&bPvP Grace Period now over!")
-			.start();
-		game.countdown().newCountdown(600)
+		int grace = getConfig().getInt("gracePeriodLength", 30);
+		if (grace > 0) {
+			game.countdown().newCountdown(grace)
+				.broadcastMessageToGameAt(grace, String.format("&b%s second PvP grace period has started!", grace))
+				.callMethodAt(0, this, "enablePVP")
+				.broadcastMessageToGameAt(0, "&bPvP Grace Period now over!")
+				.start();
+		}
+		game.countdown().newCountdown(getConfig().getInt("timeToDeathmatch", 600))
 			.broadcastMessageToGameAt(300, "&cDeathmatch in 5 minutes")
 			.broadcastMessageToGameAt(60, "&cDeathmatch in 1 minute, get ready!")
 			.callMethodAt(0, this, "preDeathmatch")
@@ -205,7 +209,8 @@ public class HungerGames extends Game implements GameType, Listener {
 	public void preDeathmatch() {
 		game.freezePlayers().enable();
 		status = "deathmatch";
-		game.broadcast("&cDeathmatch stats in 30 seconds, get ready!");
+		int countdown = getConfig().getInt("countdownToDeathmatch", 30);
+		game.broadcast(String.format("&cDeathmatch stats in %s seconds, get ready!", countdown));
 		
 		Location[] spawns = (Location[]) game.getDMSpawnLocations().toArray(new Location[game.getDMSpawnLocations().size()]);
 		Player[] players = (Player[]) game.getPlaying().toArray(new Player[game.getPlaying().size()]);
@@ -227,7 +232,7 @@ public class HungerGames extends Game implements GameType, Listener {
 			}
 		}
 		
-		game.countdown().newCountdown(30)
+		game.countdown().newCountdown(countdown)
 			.callMethodAt(0, this, "deathmatch")
 			.start();
 	}
@@ -236,7 +241,7 @@ public class HungerGames extends Game implements GameType, Listener {
 		game.freezePlayers().disable();
 		status = "deathmatch";
 		game.broadcast("&bDeathmatch has begun!");
-		game.countdown().newCountdown(120)
+		game.countdown().newCountdown(getConfig().getInt("deathmatchLength", 120))
 			.broadcastMessageToGameAt(60, "&cDeathmatch will end in 60 seconds.")
 			.broadcastMessageToGameAt(30, "&cDeathmatch will end in 30 seconds.")
 			.broadcastMessageToGameAt(15, "&cDeathmatch will end in 15 seconds.")
