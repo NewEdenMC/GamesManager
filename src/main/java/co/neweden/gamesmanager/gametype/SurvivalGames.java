@@ -70,7 +70,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	
 	@EventHandler
 	public void onJoin(GMPlayerJoinGameEvent event) {
-		if (game.getPlayers().contains(event.getPlayer()) == false) return;
+		if (!game.getPlayers().contains(event.getPlayer())) return;
 		game.resetDataForPlayer(event.getPlayer());
 		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Hunger Games, current players " + game.getPlaying().size()));
 		switch (status) {
@@ -94,7 +94,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(GMPlayerLeaveGameEvent event) {
-		if (game.getPlayers().contains(event.getPlayer()) == false) return;
+		if (!game.getPlayers().contains(event.getPlayer())) return;
 		int playing = game.getPlaying().size() - 1;
 		
 		if (status.equals("lobby")) {
@@ -103,28 +103,28 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			if (playing <= 1) { endGame(); return; }
 			if (status.equals("inprogress")) {
-				if (playing <= 2) { preDeathmatch(); return; }
+				if (playing <= 2) { preDeathmatch(); }
 			}
 		}
 	}
 	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent event) {
-		if (game.getPlayers().contains(event.getEntity()) == false) return;
+		if (!game.getPlayers().contains(event.getEntity())) return;
 		int playing = game.getPlaying().size() - 1;
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			game.broadcast(String.format("&b%s, there are only %s tributes left!", event.getDeathMessage(), playing));
 			event.setDeathMessage(null);
 			if (playing <= 1) { endGame(event.getEntity().getKiller()); return; }
 			if (status.equals("inprogress")) {
-				if (playing <= 2) { preDeathmatch(); return; }
+				if (playing <= 2) { preDeathmatch(); }
 			}
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onRespawn(PlayerRespawnEvent event) {
-		if (game.getPlayers().contains(event.getPlayer()) == false) return;
+		if (!game.getPlayers().contains(event.getPlayer())) return;
 		if (status.equals("prelobby") || status.equals("lobby"))
 			event.setRespawnLocation(game.getLobbySpawnLocation());
 		else
@@ -156,8 +156,8 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		game.spectate().enableSpectateMode();
 		game.freezePlayers().enable();
 		game.reservedSlots().onlyKickSpectators(true);
-		Location[] spawns = (Location[]) game.getGameSpawnLocations().toArray(new Location[game.getSpawnLocations().size()]);
-		Player[] players = (Player[]) game.getPlaying().toArray(new Player[game.getPlaying().size()]);
+		Location[] spawns = game.getGameSpawnLocations().toArray(new Location[game.getSpawnLocations().size()]);
+		Player[] players = game.getPlaying().toArray(new Player[game.getPlaying().size()]);
 		// TODO: test with multiple players, test with more players than spawns
 		for (int i=0; i < spawns.length; i++) {
 			if (i < players.length && i < spawns.length) {
@@ -212,8 +212,8 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		int countdown = getConfig().getInt("countdownToDeathmatch", 30);
 		game.broadcast(String.format("&cDeathmatch stats in %s seconds, get ready!", countdown));
 		
-		Location[] spawns = (Location[]) game.getDMSpawnLocations().toArray(new Location[game.getDMSpawnLocations().size()]);
-		Player[] players = (Player[]) game.getPlaying().toArray(new Player[game.getPlaying().size()]);
+		Location[] spawns = game.getDMSpawnLocations().toArray(new Location[game.getDMSpawnLocations().size()]);
+		Player[] players = game.getPlaying().toArray(new Player[game.getPlaying().size()]);
 		// TODO: test with multiple players, test with more players than spawnsy
 		for (int i=0; i < spawns.length; i++) {
 			if (i < players.length) {
