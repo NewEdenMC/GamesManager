@@ -91,27 +91,26 @@ public class GMMain extends JavaPlugin {
 
 		GameType typeClass;
 		try {
-			typeClass = instantiateGameType("co.neweden.gamesmanager.gametype." + type, GameType.class, name);
+			typeClass = instantiateGameType("co.neweden.gamesmanager.gametype." + type, GameType.class);
 		} catch (IllegalStateException ex) {
 			getLogger().severe(String.format("Unable to find or load the Game Type for %s, make sure  the correct Game Type is provided in the %s config.", name, getName()));
 			ex.printStackTrace();
 			return null;
 		}
 
-		GamesManager.games.put(name, (Game) typeClass);
+		Game game = (Game) typeClass;
+		game.gameType = typeClass;
+		game.gameName = name;
+		game.construct();
+		GamesManager.games.put(name, game);
 		typeClass.start();
 		getLogger().info(String.format("Game %s now loaded", name));
 		return (Game) typeClass;
 	}
 
-	private GameType instantiateGameType(String className, Class<GameType> type, String gameName){
+	private GameType instantiateGameType(String className, Class<GameType> type){
 		try{
-			Constructor c = Class.forName(className).getConstructor(String.class);
-			return type.cast(c.newInstance(gameName));
-		} catch(final NoSuchMethodException e){
-			throw new IllegalStateException(e);
-		} catch(final InvocationTargetException e){
-			throw new IllegalStateException(e);
+			return type.cast(Class.forName(className).newInstance());
 		} catch(final InstantiationException e){
 			throw new IllegalStateException(e);
 		} catch(final IllegalAccessException e){

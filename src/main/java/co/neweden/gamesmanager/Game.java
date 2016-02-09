@@ -1,9 +1,6 @@
 package co.neweden.gamesmanager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import org.bukkit.Location;
@@ -21,12 +18,12 @@ import co.neweden.gamesmanager.game.countdown.CMain;
 
 public class Game {
 	
-	private String gameName;
-	private Set<Player> players = new HashSet<Player>();
+	protected String gameName;
+	protected GameType gameType;
+	private Set<Player> players = new HashSet<>();
 	private String mapName = "default";
 	
-	public Game(String gameName) {
-		this.gameName = gameName;
+	protected void construct() {
 		gameConfig = new MultiConfig(this);
 		freezePlayers = new FreezePlayers(this);
 		reservedSlots = new ReservedSlots(this);
@@ -42,7 +39,9 @@ public class Game {
 			event.joinPlayerToGame(player, this);
 		}
 	}
-	
+
+	public GameType getGameTypeInstance() { return gameType; }
+
 	public void cleanUp() {
 		countdown().removeAll();
 		spectate.disableSpectateMode();
