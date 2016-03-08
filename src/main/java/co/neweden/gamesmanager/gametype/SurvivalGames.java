@@ -1,9 +1,6 @@
 package co.neweden.gamesmanager.gametype;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import co.neweden.gamesmanager.game.GMMap;
 import co.neweden.gamesmanager.game.config.MultiConfig;
@@ -32,6 +29,7 @@ import co.neweden.gamesmanager.game.countdown.Countdown;
 public class SurvivalGames extends Game implements GameType, Listener {
 	
 	String status;
+	GMMap gameMap;
 
 	public SurvivalGames() {
 		Bukkit.getPluginManager().registerEvents(this, getPlugin());
@@ -44,7 +42,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		reservedSlots().enable();
 		spectate().playersSpectateOnDeath(true);
 		setPVP(false);
-		worlds().saveSnapshots();
 		new BlockManager(this)
 			.setConfigPath("allowedBlocks")
 			.filterType(FilterType.WHITELIST)
@@ -80,8 +77,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		switch (status) {
 			case "prelobby":
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
-				if (getLobbySpawnLocation() != null)
-					event.getPlayer().teleport(getLobbySpawnLocation());
+				event.getPlayer().teleport(getConfig().getLocation("lobbyspawn"));
 				if (getPlayers().size() >= getConfig().getInt("minPlayersNeeded", 3)) {
 					lobby();
 				} else {
@@ -90,8 +86,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 				break;
 			case "lobby":
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
-				if (getLobbySpawnLocation() != null)
-					event.getPlayer().teleport(getLobbySpawnLocation());
+				event.getPlayer().teleport(getConfig().getLocation("lobbyspawn"));
 				break;
 		}
 	}
@@ -130,9 +125,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	public void onRespawn(PlayerRespawnEvent event) {
 		if (!getPlayers().contains(event.getPlayer())) return;
 		if (status.equals("prelobby") || status.equals("lobby"))
-			event.setRespawnLocation(getLobbySpawnLocation());
+			event.setRespawnLocation(getConfig().getLocation("lobbyspawn"));
 		else
-			event.setRespawnLocation(getSpecSpawnLocation());
+			event.setRespawnLocation(getConfig().getLocation("specspawn"));
 	}
 	
 	private void preLobby() {
@@ -160,7 +155,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		spectate().enableSpectateMode();
 		freezePlayers().enable();
 		reservedSlots().onlyKickSpectators(true);
-		worlds().setCurrentMap(worlds().loadMap(getConfig().getString("gameMap")));
+
+		gameMap = worlds().loadMap(getConfig().getString("gameMap"));
+		worlds().setCurrentMap(gameMap);
 		List<Location> spawnsList = getConfig().getLocationList("gamespawns", null, true);
 		Location[] spawns = spawnsList.toArray(new Location[spawnsList.size()]);
 		Player[] players = getPlaying().toArray(new Player[getPlaying().size()]);
@@ -217,8 +214,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		status = "deathmatch";
 		int countdown = getConfig().getInt("countdownToDeathmatch", 30);
 		broadcast(String.format("&cDeathmatch stats in %s seconds, get ready!", countdown));
-		
-		Location[] spawns = getDMSpawnLocations().toArray(new Location[getDMSpawnLocations().size()]);
+
+		List<Location> spawnsList = getConfig().getLocationList("dmspawns", null, true);
+		Location[] spawns = spawnsList.toArray(new Location[spawnsList.size()]);
 		Player[] players = getPlaying().toArray(new Player[getPlaying().size()]);
 		// TODO: test with multiple players, test with more players than spawnsy
 		for (int i=0; i < spawns.length; i++) {
@@ -227,17 +225,13 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			}
 		}
 		for (Player player : spectate().getSpectators()) {
-			player.teleport(getSpecSpawnLocation());
+			player.teleport(getConfig().getLocation("specspawn"));
 		}
 
-		Location dmCentre = getConfig().getLocation(getMapConfigPath() + ".dmcentre");
-		int dmRadius = getConfig().getInt(getMapConfigPath() + ".dmborderradius", 25);
-		for (Location loc : getDMSpawnLocations()) {
-			if (loc != null) {
-				worlds().setWorldBorder(loc.getWorld(), dmCentre, dmRadius);
-			}
-		}
-		
+		Location dmCentre = getConfig().getLocation("dmcentre");
+		int dmRadius = getConfig().getInt("dmborderradius", 25);
+		worlds().setWorldBorder(gameMap.getWorld(), dmCentre, dmRadius);
+
 		countdown().newCountdown(countdown)
 			.callMethodAt(0, this, "deathmatch")
 			.start();
@@ -268,7 +262,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			public void run() {
 				spectate().disableSpectateMode();
 				kickAllPlayers("The game has ended and is now resetting");
-				worlds().restoreWorlds();
 				GamesManager.restartGame(game);
 			}
 		}.runTaskLater(getPlugin(), 15 * 20L);
