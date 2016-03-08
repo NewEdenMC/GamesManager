@@ -33,7 +33,7 @@ public final class Event implements Listener {
 		Bukkit.getServer().getPluginManager().callEvent(gmprejevent);
 		
 		if (gmprejevent.isCancelled() == true) {
-			if (game.worlds().getWorlds().contains(player.getWorld()))
+			if (game.worlds().getMap(player.getWorld()) != null)
 				GamesManager.kickPlayer(player, "You have been kicked from this world as a game has just been started and you are not able to join the game.", game.getName());
 			return EventResponseCode.CANCELED;
 		}
@@ -43,9 +43,9 @@ public final class Event implements Listener {
 		GMPlayerJoinGameEvent gmjevent = new GMPlayerJoinGameEvent(player, game);
 		Bukkit.getServer().getPluginManager().callEvent(gmjevent);
 		
-		if (gmjevent.isCancelled() == true) {
+		if (gmjevent.isCancelled()) {
 			game.releasePlayer(player);
-			if (game.worlds().getWorlds().contains(player.getWorld()))
+			if (game.worlds().getMap(player.getWorld()) != null)
 				GamesManager.kickPlayer(player, "You have been kicked from this world as a game has just been started and you are not able to join the game.", game.getName());
 			return EventResponseCode.CANCELED;
 		}
@@ -54,14 +54,13 @@ public final class Event implements Listener {
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPreJoin(PlayerJoinEvent event) {
-		// TODO: Fix this even so it passes the correct game
 		Game game = GamesManager.getGameByWorld(event.getPlayer().getWorld());
 		if (game == null) return;
 		
 		GMPlayerPreJoinGameEvent gmevent = new GMPlayerPreJoinGameEvent(event.getPlayer(), game);
 		Bukkit.getServer().getPluginManager().callEvent(gmevent);
 		
-		if (gmevent.isCancelled() == true) {
+		if (gmevent.isCancelled()) {
 			GamesManager.kickPlayer(event.getPlayer(), gmevent.getKickMessage(), game.getName());
 		}
 	}
@@ -70,13 +69,13 @@ public final class Event implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 		Game game = GamesManager.getGameByWorld(event.getPlayer().getWorld());
 		if (game == null) return;
-		if (event.getPlayer().isOnline() == false) return; // Sanity check as event can't be cancelled
+		if (!event.getPlayer().isOnline()) return; // Sanity check as event can't be cancelled
 		game.preparePlayer(event.getPlayer());
 		
 		GMPlayerJoinGameEvent gmevent = new GMPlayerJoinGameEvent(event.getPlayer(), game);
 		Bukkit.getServer().getPluginManager().callEvent(gmevent);
 		
-		if (gmevent.isCancelled() == true) {
+		if (gmevent.isCancelled()) {
 			game.releasePlayer(event.getPlayer());
 			GamesManager.kickPlayer(event.getPlayer(), gmevent.getKickMessage(), game.getName());
 		}
@@ -92,7 +91,7 @@ public final class Event implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onKick(PlayerKickEvent event) {
-		if (event.isCancelled() == true) return;
+		if (event.isCancelled()) return;
 		if (GamesManager.isPlayerInAnyGame(event.getPlayer())) {
 			Game game = GamesManager.getGameByPlayer(event.getPlayer());
 			callLeaveEvent(event.getPlayer(), game);
@@ -101,7 +100,7 @@ public final class Event implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onTeleport(final PlayerTeleportEvent event) {
-		if (event.isCancelled() == true) return;
+		if (event.isCancelled()) return;
 		EventResponseCode switchEvent = prePlayerTeleport(event.getPlayer(), event.getFrom().getWorld(), event.getTo().getWorld());
 		if (switchEvent == EventResponseCode.CANCEL)
 			event.setCancelled(true);
@@ -109,7 +108,7 @@ public final class Event implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPortal(final PlayerPortalEvent event) {
-		if (event.isCancelled() == true) return;
+		if (event.isCancelled()) return;
 		EventResponseCode switchEvent = prePlayerTeleport(event.getPlayer(), event.getFrom().getWorld(), event.getTo().getWorld());
 		if (switchEvent == EventResponseCode.CANCEL)
 			event.setCancelled(true);
@@ -133,7 +132,7 @@ public final class Event implements Listener {
 	private EventResponseCode callPreJoinEvent(Player player, Game game) {
 		GMPlayerPreJoinGameEvent gmevent = new GMPlayerPreJoinGameEvent(player, game);
 		Bukkit.getServer().getPluginManager().callEvent(gmevent);
-		if (gmevent.isCancelled() == true) {
+		if (gmevent.isCancelled()) {
 			player.sendMessage(Util.formatString(String.format("&e[&6%s&e] &6%s", game.getName(), gmevent.getKickMessage())));
 			return EventResponseCode.CANCEL;
 		}
@@ -144,7 +143,7 @@ public final class Event implements Listener {
 		game.preparePlayer(player);
 		GMPlayerJoinGameEvent gmevent = new GMPlayerJoinGameEvent(player, game);
 		Bukkit.getServer().getPluginManager().callEvent(gmevent);
-		if (gmevent.isCancelled() == true) {
+		if (gmevent.isCancelled()) {
 			game.releasePlayer(player);
 			player.sendMessage(Util.formatString(String.format("&e[&6%s&e] &6%s", game.getName(), gmevent.getKickMessage())));
 			return EventResponseCode.CANCEL;
@@ -155,7 +154,7 @@ public final class Event implements Listener {
 	private EventResponseCode callLeaveEvent(Player player, Game game) {
 		GMPlayerLeaveGameEvent gmevent = new GMPlayerLeaveGameEvent(player, game);
 		Bukkit.getServer().getPluginManager().callEvent(gmevent);
-		if (gmevent.isCancelled() == false) {
+		if (!gmevent.isCancelled()) {
 			game.releasePlayer(player);
 			return EventResponseCode.CALLED;
 		}

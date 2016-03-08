@@ -22,7 +22,7 @@ public class BlockManager implements Listener {
 	private boolean listenPlace = false;
 	private boolean listenBreak = false;
 	private boolean listen = false;
-	private Set<World> worlds = new HashSet<World>();
+	private Set<GMMap> maps = new HashSet<>();
 	private Set<Material> blocks = new HashSet<Material>();
 	private String configPath = "";
 	private FilterType filterType = FilterType.BLACKLIST;
@@ -34,8 +34,8 @@ public class BlockManager implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, game.getPlugin());
 	}
 	
-	public BlockManager listenInWorld(World world) { worlds.add(world); return this; }
-	public BlockManager listenInWorlds(Set<World> worlds) { this.worlds.addAll(worlds); return this; }
+	public BlockManager listenInWorld(GMMap map) { maps.add(map); return this; }
+	public BlockManager listenInWorlds(Set<GMMap> maps) { this.maps.addAll(maps); return this; }
 	public BlockManager setConfigPath(String path) { this.configPath = path; return this; }
 	public String getConfigPath() { return this.configPath; }
 	public BlockManager addBlock(Material block) { this.blocks.add(block); return this; }
@@ -45,10 +45,10 @@ public class BlockManager implements Listener {
 	public BlockManager filterType(FilterType filterType) { this.filterType = filterType; return this; }
 	
 	public BlockManager startListening() {
-		if (worlds.isEmpty())
-			worlds.addAll(game.worlds().getWorlds());
+		if (maps.isEmpty())
+			maps.addAll(game.worlds().getMaps());
 		addConfigBlocks();
-		if (listenPlace == false && listenBreak == false) {
+		if (!listenPlace && !listenBreak) {
 			listenPlace = true;
 			listenBreak = true;
 		}
@@ -57,8 +57,9 @@ public class BlockManager implements Listener {
 	}
 	
 	private void addConfigBlocks() {
-		if (game.getPlugin().getConfig().isList(configPath) == false) return;
-		for (Object item : game.getPlugin().getConfig().getList(configPath)) {
+		if (!game.getPlugin().getConfig().isList(configPath)) return;
+
+		for (Object item : game.getConfig().getList(configPath)) {
 			if (Parser.verifyItemStack(item.toString())) {
 				blocks.add(Parser.parseItemStack(item.toString()).getItemStack().getType());
 			}
@@ -69,27 +70,25 @@ public class BlockManager implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		if (event.isCancelled()) return;
-		if (game.getPlayers().contains(event.getPlayer()) == false) return;
-		if (listen == false) return;
-		if (listenPlace == false) return;
+		if (event.isCancelled() || !listen || !listenPlace ||
+				!game.getPlayers().contains(event.getPlayer())) return;
+
 		if (filterType == FilterType.WHITELIST) {
-			if (blocks.contains(event.getBlock().getType()) == false) event.setCancelled(true);
+			if (!blocks.contains(event.getBlock().getType())) event.setCancelled(true);
 		} else {
-			if (blocks.contains(event.getBlock().getType()) == true) event.setCancelled(true);
+			if (blocks.contains(event.getBlock().getType())) event.setCancelled(true);
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
-		if (event.isCancelled()) return;
-		if (game.getPlayers().contains(event.getPlayer()) == false) return;
-		if (listen == false) return;
-		if (listenPlace == false) return;
+		if (event.isCancelled() || !listen || !listenPlace ||
+				!game.getPlayers().contains(event.getPlayer())) return;
+
 		if (filterType == FilterType.WHITELIST) {
-			if (blocks.contains(event.getBlock().getType()) == false) event.setCancelled(true);
+			if (!blocks.contains(event.getBlock().getType())) event.setCancelled(true);
 		} else {
-			if (blocks.contains(event.getBlock().getType()) == true) event.setCancelled(true);
+			if (blocks.contains(event.getBlock().getType())) event.setCancelled(true);
 		}
 	}
 	

@@ -25,7 +25,7 @@ import org.bukkit.util.FileUtil;
 public class WorldsManager implements Listener {
 	
 	private Game game;
-	private Set<GMMap> maps;
+	private Set<GMMap> maps = new HashSet<>();
 	private GMMap currentMap;
 	
 	public WorldsManager(Game game) {
@@ -36,18 +36,6 @@ public class WorldsManager implements Listener {
 	public Set<GMMap> getMaps() { return new HashSet<>(maps); }
 
 	public GMMap getCurrentMap() { return currentMap; }
-
-	@Deprecated
-	public Set<World> getWorlds() {
-		Set<World> worlds = new HashSet<>();
-		Set<Location> locations = game.getSpawnLocations();
-		if (locations.isEmpty()) return worlds;
-		for (Location loc : locations) {
-			if (loc == null || loc.getWorld() == null) continue;
-			worlds.add(loc.getWorld());
-		}
-		return worlds;
-	}
 
 	public GMMap loadMap(World world) { return loadMap(world.getName()); }
 	public GMMap loadMap(String worldName) {
@@ -94,6 +82,13 @@ public class WorldsManager implements Listener {
 		return new GMMap(nWorld, worldName);
 	}
 
+	public GMMap getMap(World world) {
+		for (GMMap map : maps) {
+			if (map.getWorld().equals(world)) return map;
+		}
+		return null;
+	}
+
 	public void unloadWorlds() {
 		for (GMMap map : maps) {
 			unloadMap(map);
@@ -130,58 +125,6 @@ public class WorldsManager implements Listener {
 		}*/
 	}
 
-	@Deprecated
-	public void saveSnapshots() {
-		for (World world : getWorlds()) {
-			saveSnapshot(world);
-		}
-	}
-
-	@Deprecated
-	public void saveSnapshot(World world) {
-		File wFolder = world.getWorldFolder();
-		File sFolder = new File(game.getPlugin().getDataFolder().getPath() + "/worldSnapshots/" + world.getName());
-		
-		world.save();
-		try {
-			if (sFolder.exists()) {
-				FileUtils.deleteDirectory(sFolder);
-			}
-			sFolder.mkdirs();
-			FileUtils.copyDirectory(wFolder, sFolder);
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, String.format("[%s] An error occured when creating a snapshot backup of the world %s, see stack trace below.", game.getPlugin().getName(), world.getName()));
-			e.printStackTrace();
-		}
-	}
-
-	@Deprecated
-	public void restoreWorlds() {
-		for (World world : getWorlds()) {
-			restoreWorld(world);
-		}
-	}
-
-	@Deprecated
-	public void restoreWorld(World world) {
-		File wFolder = world.getWorldFolder();
-		File sFolder = new File(game.getPlugin().getDataFolder().getPath() + "/worldSnapshots/" + world.getName());
-		
-		Bukkit.unloadWorld(world, true);
-		try {
-			if (sFolder.isDirectory() == false) return;
-			if (wFolder.exists()) {
-				FileUtils.deleteDirectory(wFolder);
-			}
-			wFolder.mkdirs();
-			FileUtils.copyDirectory(sFolder, wFolder);
-			WorldCreator.name(world.getName()).createWorld();
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, String.format("[%s] An error occured when restoring the snapshot backup for the world %s, depending on the error the world may now be corrupt try restoring it manually, see stack trace below.", game.getPlugin().getName(), world.getName()));
-			e.printStackTrace();
-		}
-	}
-	
 	private HashMap<String, WBSquare> wbSquares = new HashMap<String, WBSquare>();
 	
 	public void setWorldBorder(World world, Location centre, Integer radius) {
@@ -226,9 +169,10 @@ public class WorldsManager implements Listener {
 	
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent event) {
-		if (event.isCancelled() == true) return;
-		if (game.getPlayers().contains(event.getPlayer()) == false) return;
-		if (wbSquares.containsKey(event.getPlayer().getWorld().getName()) == false) return;
+		if (event.isCancelled() ||
+			!game.getPlayers().contains(event.getPlayer()) ||
+			!wbSquares.containsKey(event.getPlayer().getWorld().getName())) return;
+
 		WBSquare square = wbSquares.get(event.getPlayer().getWorld().getName());
 		Location location = event.getPlayer().getLocation();
 		
@@ -247,8 +191,8 @@ public class WorldsManager implements Listener {
 				(int) location.getZ() < square.getBottomZ() - 3)
 			tp = true;
 		
-		if (outside == true) {
-			if (tp == true)
+		if (outside) {
+			if (tp)
 				event.getPlayer().teleport(square.getCentre());
 			else
 				event.getPlayer().teleport(wbMovePlayer(event.getPlayer().getLocation()));

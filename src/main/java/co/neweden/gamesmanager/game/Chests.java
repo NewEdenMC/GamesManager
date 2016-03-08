@@ -26,8 +26,8 @@ public class Chests implements Listener {
 	
 	private Game game;
 	private Boolean listen = false;
-	private Set<World> worlds = new HashSet<World>();
-	private Set<Block> chests = new HashSet<Block>();
+	private Set<GMMap> maps = new HashSet<>();
+	private Set<Block> chests = new HashSet<>();
 	private String configPath = "";
 	private int minToFill = 4;
 	private int maxToFill = 7;
@@ -38,10 +38,10 @@ public class Chests implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, game.getPlugin());
 	}
 	
-	public Chests listenInWorld(World world) { worlds.add(world); return this; }
-	public Chests listenInWorlds(Set<World> worlds) { this.worlds.addAll(worlds); return this; }
+	public Chests listenInWorld(GMMap map) { maps.add(map); return this; }
+	public Chests listenInWorlds(Set<GMMap> maps) { this.maps.addAll(maps); return this; }
 	public Chests setConfigPath(String path) { this.configPath = path; return this; }
-	public String getConfigPath() { return this.configPath; }
+	public String getConfigPath() { return configPath; }
 	public Chests setRangeOfInvToFill(int min, int max) { this.minToFill = min; this.maxToFill = max; return this; }
 	public int getMinToFill() { return this.minToFill; }
 	public int getMaxToFill() { return this.maxToFill; }
@@ -49,8 +49,8 @@ public class Chests implements Listener {
 	public boolean getDynamicRangeFill() { return this.dynamicFill; }
 	
 	public Chests startListening() {
-		if (worlds.isEmpty())
-			worlds.addAll(game.worlds().getWorlds());
+		if (maps.isEmpty())
+			maps.addAll(game.worlds().getMaps());
 		if (configPath.equals(""))
 			configPath = "items";
 		listen = true;
@@ -61,18 +61,17 @@ public class Chests implements Listener {
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.isCancelled() == true) return;
-		if (listen == false) return;
-		if (worlds.contains(event.getPlayer().getWorld()) == false) return;
-		
+		if (event.isCancelled() || !listen ||
+				!maps.contains(game.worlds().getMap(event.getPlayer().getWorld()))) return;
+
 		Block block = event.getClickedBlock();
 		if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {
-			if (chests.contains(block) == false) {
+			if (!chests.contains(block)) {
 				Chest chest = (Chest) block.getState();
 				if (chest.getInventory() instanceof DoubleChestInventory) {
 					DoubleChestInventory dChest = (DoubleChestInventory) chest.getInventory();
-					InventoryHolder left = (InventoryHolder) dChest.getLeftSide().getHolder();
-					InventoryHolder right = (InventoryHolder) dChest.getRightSide().getHolder();
+					InventoryHolder left = dChest.getLeftSide().getHolder();
+					InventoryHolder right = dChest.getRightSide().getHolder();
 					chests.add(((Chest) left).getBlock());
 					chests.add(((Chest) right).getBlock());
 				} else {
@@ -95,7 +94,7 @@ public class Chests implements Listener {
 			for (ItemStackWrapper item : getRandomChestItems(inv.getSize())) {
 				inv.setItem(item.getSlot(), item.getItemStack());
 			}
-		} else return;
+		}
 	}
 	
 	public Set<ItemStackWrapper> getRandomChestItems(int slots) {
@@ -135,8 +134,8 @@ public class Chests implements Listener {
 	}
 	
 	public List<ItemStackWrapper> getConfigItemList() {
-		List<ItemStackWrapper> items = new ArrayList<ItemStackWrapper>();
-		if (game.getConfig().isList(configPath) == false) return items;
+		List<ItemStackWrapper> items = new ArrayList<>();
+		if (!game.getConfig().isList(configPath)) return items;
 		for (Object item : game.getConfig().getList(configPath)) {
 			if (Parser.verifyItemStack(item.toString())) {
 				items.add(Parser.parseItemStack(item.toString()));

@@ -2,6 +2,7 @@ package co.neweden.gamesmanager;
 
 import java.util.*;
 
+import co.neweden.gamesmanager.game.*;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,11 +10,7 @@ import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
-import co.neweden.gamesmanager.game.FreezePlayers;
-import co.neweden.gamesmanager.game.ReservedSlots;
 import co.neweden.gamesmanager.game.spectate.Spectate;
-import co.neweden.gamesmanager.game.Statistics;
-import co.neweden.gamesmanager.game.WorldsManager;
 import co.neweden.gamesmanager.game.countdown.CMain;
 
 public class Game {
@@ -31,13 +28,6 @@ public class Game {
 		spectate = new Spectate(this);
 		statistics = new Statistics(this);
 		Event event = new Event(getPlugin());
-		Set<Player> players = new HashSet<Player>();
-		for (World world : worlds().getWorlds()) {
-			players.addAll(world.getPlayers());
-		}
-		for (Player player : players) {
-			event.joinPlayerToGame(player, this);
-		}
 	}
 
 	public GameType getGameTypeInstance() { return gameType; }
@@ -54,11 +44,11 @@ public class Game {
 	public void refreshPlayerList() {
 		for (Player player : players) {
 			boolean remove = true;
-			for (World world : worlds().getWorlds()) {
-				if (world.getPlayers().contains(player))
+			for (GMMap map : worlds().getMaps()) {
+				if (map.getWorld().getPlayers().contains(player))
 					remove = false;
 			}
-			if (remove == true)
+			if (remove)
 				players.remove(player);
 		}
 	}
@@ -127,20 +117,20 @@ public class Game {
 		}
 	}
 	
-	private HashMap<String, Boolean> pvp = new HashMap<String, Boolean>();
+	private HashMap<GMMap, Boolean> pvp = new HashMap<>();
 	
 	public void setPVP(boolean enable) {
-		for (World world : worlds().getWorlds()) {
-			if (pvp.containsKey(world) == false)
-				pvp.put(world.getName(), world.getPVP());
-			world.setPVP(enable);
+		for (GMMap map : worlds().getMaps()) {
+			if (!pvp.containsKey(map))
+				pvp.put(map, map.getWorld().getPVP());
+			map.getWorld().setPVP(enable);
 		}
 	}
 	
 	public void resetPVP() {
-		for (World world : worlds().getWorlds()) {
-			if (pvp.containsKey(world) == false)
-				world.setPVP(pvp.get(world.getName()));
+		for (GMMap map : worlds().getMaps()) {
+			if (!pvp.containsKey(map))
+				map.getWorld().setPVP(pvp.get(map));
 		}
 		pvp.clear();
 	}
@@ -152,7 +142,7 @@ public class Game {
 	}
 	
 	public void resetDataForPlayer(Player player) {
-		if (getPlayers().contains(player) == false) return;
+		if (!getPlayers().contains(player)) return;
 		player.getInventory().clear();
 		player.getInventory().setHelmet(null);
 		player.getInventory().setChestplate(null);
@@ -175,7 +165,7 @@ public class Game {
 	}
 	
 	public Set<Player> getPlayers() {
-		return new HashSet<Player>(players);
+		return new HashSet<>(players);
 	}
 	
 	public Set<Player> getPlaying() {

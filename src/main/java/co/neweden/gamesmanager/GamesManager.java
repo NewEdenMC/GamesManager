@@ -83,7 +83,7 @@ public class GamesManager {
 	
 	public static Game getGameByWorld(World world) {
 		for (Game game : getEnabledGames()) {
-			if (game.worlds().getWorlds().contains(world))
+			if (game.worlds().getMap(world) != null)
 				return game;
 		}
 		return null;
