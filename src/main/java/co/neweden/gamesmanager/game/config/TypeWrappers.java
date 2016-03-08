@@ -1,5 +1,6 @@
 package co.neweden.gamesmanager.game.config;
 
+import co.neweden.gamesmanager.Game;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -7,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TypeWrappers {
+
+    protected Game game;
 
     public Object get(String path, Object def) {
         // Placeholder method to be overridden in sub-classes
@@ -50,7 +53,10 @@ public class TypeWrappers {
     public Location getLocation(String path, Location def) { return getLocation(path, def, false); }
     public Location getLocation(String path, Location def, Boolean cleanLocation) {
         World world = null;
-        if (def != null) world = def.getWorld();
+        if (def == null) {
+            if (game.worlds().getCurrentMap().getWorld() != null) world = game.worlds().getCurrentMap().getWorld();
+        } else
+            world = def.getWorld();
         if (isLocation(path))
             return Parser.parseLocation(getString(path), cleanLocation, world);
         else
@@ -90,7 +96,9 @@ public class TypeWrappers {
         List<Location> locList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             World world = null;
-            if (def != null) {
+            if (def == null) {
+                if (game.worlds().getCurrentMap().getWorld() != null) world = game.worlds().getCurrentMap().getWorld();
+            } else {
                 if (i < def.size()) world = def.get(i).getWorld();
             }
             locList.add(Parser.parseLocation(list.get(i).toString(), cleanLocation, world));

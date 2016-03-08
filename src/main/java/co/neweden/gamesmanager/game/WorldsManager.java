@@ -2,35 +2,44 @@ package co.neweden.gamesmanager.game;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.file.*;
+import java.util.*;
 import java.util.logging.Level;
 
+import co.neweden.gamesmanager.game.config.Parser;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import co.neweden.gamesmanager.Game;
 import co.neweden.gamesmanager.Util;
+import org.bukkit.util.FileUtil;
 
 public class WorldsManager implements Listener {
 	
 	private Game game;
+	private Set<GMMap> maps;
+	private GMMap currentMap;
 	
 	public WorldsManager(Game game) {
 		this.game = game;
 		Bukkit.getPluginManager().registerEvents(this, game.getPlugin());
 	}
-	
+
+	public Set<GMMap> getMaps() { return new HashSet<>(maps); }
+
+	public GMMap getCurrentMap() { return currentMap; }
+
+	@Deprecated
 	public Set<World> getWorlds() {
-		Set<World> worlds = new HashSet<World>();
+		Set<World> worlds = new HashSet<>();
 		Set<Location> locations = game.getSpawnLocations();
 		if (locations.isEmpty()) return worlds;
 		for (Location loc : locations) {
@@ -39,13 +48,96 @@ public class WorldsManager implements Listener {
 		}
 		return worlds;
 	}
-	
+
+	public GMMap loadMap(World world) { return loadMap(world.getName()); }
+	public GMMap loadMap(String worldName) {
+		if (worldName == null) return null;
+
+		Path pPath = Paths.get("GamesManager_TempWorld");
+		String wName = pPath + File.separator + game.getName() + "_" + worldName;
+
+		Integer count = 0;
+		while (Files.exists(Paths.get(wName + "_" + count)))
+			count++;
+		wName = wName + "_" + count;
+		Path wPath = Paths.get(wName);
+
+		try {
+			try {
+				Files.createDirectory(pPath);
+			} catch (FileAlreadyExistsException ex) {
+				if (!Files.isDirectory(pPath)) {
+					game.getPlugin().getLogger().severe(pPath.toString() + " exists and is not a directory, GamesManager needs this to be a directory to store temporary world instances");
+					return null;
+				}
+			}
+			Files.createSymbolicLink(wPath, Paths.get(worldName));
+		} catch (FileSystemException ex) {
+			try {
+				FileUtils.copyDirectory(new File(worldName), wPath.toFile());
+				Files.delete(Paths.get(wPath + File.separator + "uid.dat"));
+			} catch (IOException ex2) {
+				game.getPlugin().getLogger().severe("IOException has occurred: " + ex2.getMessage());
+				return null;
+			}
+		} catch (IOException ex) {
+			game.getPlugin().getLogger().severe("IOException has occurred: " + ex.getMessage());
+			return null;
+		}
+
+		World nWorld = WorldCreator.name(wName).createWorld();
+		if (nWorld == null) {
+			game.getPlugin().getLogger().severe("Could not create or load world " + wName);
+			return null;
+		}
+		nWorld.setAutoSave(false);
+		return new GMMap(nWorld, worldName);
+	}
+
+	public void unloadWorlds() {
+		for (GMMap map : maps) {
+			unloadMap(map);
+		}
+	}
+
+	public boolean unloadMap(GMMap map) {
+		maps.remove(map);
+		boolean unload = game.getPlugin().getServer().unloadWorld(map.getWorld(), false);
+		if (!unload) {
+			maps.add(map);
+			return false;
+		}
+		try {
+			FileUtils.deleteDirectory(new File(map.getBaseWorldName()));
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		return true;
+	}
+
+	public void setCurrentMap(GMMap map) { setCurrentMap(map, null); }
+	public void setCurrentMap(GMMap map, Map<String, List<Player>> spawnMap) {
+		game.getConfig().switchMap(map.getBaseWorldName());
+		currentMap = map;
+
+		/*if (spawnMap == null) return;
+		for (java.util.Map.Entry<String, List<Player>> spawn : spawnMap.entrySet()) {
+			Location loc = Parser.parseLocation(spawn.getKey(), true, map.getWorld());
+			loc.setWorld(map.getWorld());
+			for (Player player : spawn.getValue()) {
+				player.teleport(loc);
+			}
+		}*/
+	}
+
+	@Deprecated
 	public void saveSnapshots() {
 		for (World world : getWorlds()) {
 			saveSnapshot(world);
 		}
 	}
-	
+
+	@Deprecated
 	public void saveSnapshot(World world) {
 		File wFolder = world.getWorldFolder();
 		File sFolder = new File(game.getPlugin().getDataFolder().getPath() + "/worldSnapshots/" + world.getName());
@@ -57,19 +149,20 @@ public class WorldsManager implements Listener {
 			}
 			sFolder.mkdirs();
 			FileUtils.copyDirectory(wFolder, sFolder);
-			//Util.copyFolder(wFolder, sFolder);
 		} catch (IOException e) {
 			Bukkit.getLogger().log(Level.SEVERE, String.format("[%s] An error occured when creating a snapshot backup of the world %s, see stack trace below.", game.getPlugin().getName(), world.getName()));
 			e.printStackTrace();
 		}
 	}
-	
+
+	@Deprecated
 	public void restoreWorlds() {
 		for (World world : getWorlds()) {
 			restoreWorld(world);
 		}
 	}
-	
+
+	@Deprecated
 	public void restoreWorld(World world) {
 		File wFolder = world.getWorldFolder();
 		File sFolder = new File(game.getPlugin().getDataFolder().getPath() + "/worldSnapshots/" + world.getName());

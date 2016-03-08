@@ -22,7 +22,7 @@ import co.neweden.gamesmanager.event.GMPlayerPreJoinGameEvent;
 public final class Event implements Listener {
 	
 	GMMain plugin;
-	private enum EventResponseCode { RETURN, CALLED, CANCEL, CANCELED }
+	protected enum EventResponseCode { RETURN, CALLED, CANCEL, CANCELED }
 	
 	public Event(GMMain instance) {
 		this.plugin = instance;

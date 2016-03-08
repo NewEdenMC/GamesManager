@@ -1,7 +1,11 @@
 package co.neweden.gamesmanager.gametype;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import co.neweden.gamesmanager.game.GMMap;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,12 +32,15 @@ import co.neweden.gamesmanager.game.countdown.Countdown;
 public class SurvivalGames extends Game implements GameType, Listener {
 	
 	String status;
-	
+
 	public SurvivalGames() {
 		Bukkit.getPluginManager().registerEvents(this, getPlugin());
 	}
 
 	public void start() {
+		String lobbyWorld = getConfig().getString("lobbyworld");
+		worlds().setCurrentMap(worlds().loadMap(lobbyWorld));
+
 		reservedSlots().enable();
 		spectate().playersSpectateOnDeath(true);
 		setPVP(false);
@@ -153,7 +160,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		spectate().enableSpectateMode();
 		freezePlayers().enable();
 		reservedSlots().onlyKickSpectators(true);
-		Location[] spawns = getGameSpawnLocations().toArray(new Location[getSpawnLocations().size()]);
+		worlds().setCurrentMap(worlds().loadMap(getConfig().getString("gameMap")));
+		List<Location> spawnsList = getConfig().getLocationList("gamespawns", null, true);
+		Location[] spawns = spawnsList.toArray(new Location[spawnsList.size()]);
 		Player[] players = getPlaying().toArray(new Player[getPlaying().size()]);
 		// TODO: test with multiple players, test with more players than spawns
 		for (int i=0; i < spawns.length; i++) {
@@ -200,9 +209,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			.callMethodAt(0, this, "preDeathmatch")
 			.start();
 	}
-	
+
 	public void enablePVP() { setPVP(true); }
-	
+
 	public void preDeathmatch() {
 		freezePlayers().enable();
 		status = "deathmatch";

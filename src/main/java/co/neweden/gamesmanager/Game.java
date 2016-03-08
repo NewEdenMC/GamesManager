@@ -24,11 +24,11 @@ public class Game {
 	private String mapName = "default";
 	
 	protected void construct() {
+		worldsManager = new WorldsManager(this);
 		gameConfig = new MultiConfig(this);
 		freezePlayers = new FreezePlayers(this);
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
-		worldsManager = new WorldsManager(this);
 		statistics = new Statistics(this);
 		Event event = new Event(getPlugin());
 		Set<Player> players = new HashSet<Player>();
@@ -89,7 +89,8 @@ public class Game {
 	public String getMapConfigPath() { return "maps." + mapName; }
 	public Integer getMinPlayerCount() { return getConfig().getInt("minplayers", 0); }
 	public Integer getMaxPlayerCount() { return getConfig().getInt("maxplayers", 0); }
-	
+
+	@Deprecated
 	public Set<Location> getSpawnLocations() {
 		Set<Location> spawnLocations = new HashSet<Location>();
 		try {
@@ -102,12 +103,16 @@ public class Game {
 		spawnLocations.addAll(getDMSpawnLocations());
 		return spawnLocations;
 	}
-	
+
+	@Deprecated
 	public Location getLobbySpawnLocation() { return getConfig().getLocation("lobbyspawn", null, true); }
+	@Deprecated
 	public Location getSpecSpawnLocation() { return getConfig().getLocation(getMapConfigPath() + ".specspawn", null, true); }
+	@Deprecated
 	public Set<Location> getGameSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".gamespawns"); }
+	@Deprecated
 	public Set<Location> getDMSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".dmspawns"); }
-	
+	@Deprecated
 	public Set<Location> getConfigLocations(String configKey) {
 		return new HashSet<>(getConfig().getLocationList(configKey, new ArrayList<Location>(), true));
 	}

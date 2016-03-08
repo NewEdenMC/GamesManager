@@ -13,6 +13,7 @@ public class GamesManager {
 	
 	protected static GMMain plugin;
 	protected static HashMap<String, Game> games = new HashMap<String, Game>();
+	protected static Event event;
 	
 	private GamesManager() { }
 	
@@ -48,7 +49,15 @@ public class GamesManager {
 		if (stopGame(game) == false) return null;
 		return plugin.loadGame(name);
 	}
-	
+
+	public static boolean joinPlayerToGame(Player player, Game game) {
+		Event.EventResponseCode erc = event.joinPlayerToGame(player, game);
+		if (erc.equals(Event.EventResponseCode.CALLED))
+			return true;
+		else
+			return false;
+	}
+
 	public static boolean isPlayerInAnyGame(Player player) {
 		if (getGameByPlayer(player) != null)
 			return true;

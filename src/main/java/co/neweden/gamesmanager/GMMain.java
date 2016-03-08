@@ -1,11 +1,13 @@
 package co.neweden.gamesmanager;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class GMMain extends JavaPlugin {
@@ -15,10 +17,12 @@ public class GMMain extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		GamesManager.plugin = this;
+		GamesManager.event = new Event(this);
 		this.saveDefaultConfig();
 		getCommand("gamesmanager").setExecutor(new CommandManager(this));
+		getCommand("join").setExecutor(new CommandManager(this));
 		initLoadGames();
-		getServer().getPluginManager().registerEvents(new Event(this), this);
+		getServer().getPluginManager().registerEvents(GamesManager.event, this);
 	}
 	
 	@Override

@@ -18,7 +18,6 @@ import co.neweden.gamesmanager.Util;
 
 public class MultiConfig extends TypeWrappers {
 
-    private Game game;
     private YamlConfiguration gtConfig = new YamlConfiguration();
     private File gtConfigFile;
     private YamlConfiguration mConfig = new YamlConfiguration();
@@ -27,31 +26,41 @@ public class MultiConfig extends TypeWrappers {
 
     public MultiConfig(Game game) {
         this.game = game;
-        loadConfigFile(Config.GAMETYPE, game.getName() + ".yml");
-        loadConfigFile(Config.MAP, game.getName() + ".yml");
+        loadConfigFile(Config.GAMETYPE, "", game.getName() + ".yml");
+
+        String mapConfigPath = "";
+        String mapConfigName = game.getName() + ".yml";
+        if (game.worlds().getCurrentMap() != null) {
+            mapConfigPath = "mapConfigs";
+            mapConfigName = game.worlds().getCurrentMap().getBaseWorldName() + ".yml";
+        }
+
+        loadConfigFile(Config.MAP, mapConfigPath, mapConfigName);
     }
 
-    protected void switchMap(String mapName) {
-        loadConfigFile(Config.MAP, mapName + ".yml");
+    public void switchMap(String mapName) {
+        loadConfigFile(Config.MAP, "mapConfigs", mapName + ".yml");
     }
 
-    public void loadConfigFile(Config config, String fileName) {
-        game.getPlugin().getLogger().info(String.format("[%s] Loading config %s", game.getName(), fileName));
+    public void loadConfigFile(Config config, String prefixPath, String fileName) {
+        String path = game.getPlugin().getDataFolder() + File.separator + prefixPath;
+        game.getPlugin().getLogger().info(String.format("[%s] Loading config %s", game.getName(), path + File.separator + fileName));
+
         try {
             switch (config) {
-                case MAP: mConfigFile = new File(game.getPlugin().getDataFolder(), fileName);
+                case MAP: mConfigFile = new File(path, fileName);
                     mConfig.load(mConfigFile);
                     break;
-                case GAMETYPE: gtConfigFile = new File(game.getPlugin().getDataFolder(), fileName);
+                case GAMETYPE: gtConfigFile = new File(path, fileName);
                     gtConfig.load(gtConfigFile);
                     break;
             }
         } catch (FileNotFoundException ex) {
-            game.getPlugin().getLogger().warning(String.format("[%s] Config file %s not found, skipping", game.getName(), fileName));
+            game.getPlugin().getLogger().warning(String.format("[%s] Config file %s not found, skipping", game.getName(), path + File.separator + fileName));
         } catch (IOException ex) {
-            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Cannot load configuration file %s: IOException", game.getName(), fileName), ex);
+            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Cannot load configuration file %s: IOException", game.getName(), path + File.separator + fileName), ex);
         } catch (InvalidConfigurationException ex) {
-            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Cannot load configuration file %s: InvalidConfigurationException", game.getName(), fileName), ex);
+            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Cannot load configuration file %s: InvalidConfigurationException", game.getName(), path + File.separator + fileName), ex);
         }
     }
 
