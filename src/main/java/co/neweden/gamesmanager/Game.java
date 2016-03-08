@@ -17,6 +17,7 @@ public class Game {
 	
 	protected String gameName;
 	protected GameType gameType;
+	protected String gameTypeName;
 	private Set<Player> players = new HashSet<>();
 	private String mapName = "default";
 	
@@ -33,9 +34,11 @@ public class Game {
 	public GameType getGameTypeInstance() { return gameType; }
 
 	public void cleanUp() {
+		kickAllPlayers("The game has ended and is now resetting");
 		countdown().removeAll();
 		spectate.disableSpectateMode();
 		resetPVP();
+		worlds().unloadMaps();
 	}
 
 	public void preparePlayer(Player player) { players.add(player); getPlugin().getLogger().info(String.format("Preparing player %s for %s", player.getName(), getName())); }
@@ -74,8 +77,8 @@ public class Game {
 	public GMMain getPlugin() { return GamesManager.plugin; }
 	public String getName() { return gameName; }
 	public String getCurrentMapName() { return mapName; }
-	public String getType() { return getConfig().getString("type", null); }
-	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false); }
+	public String getTypeName() { return gameTypeName; }
+	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false);}
 	public String getMapConfigPath() { return "maps." + mapName; }
 	public Integer getMinPlayerCount() { return getConfig().getInt("minplayers", 0); }
 	public Integer getMaxPlayerCount() { return getConfig().getInt("maxplayers", 0); }

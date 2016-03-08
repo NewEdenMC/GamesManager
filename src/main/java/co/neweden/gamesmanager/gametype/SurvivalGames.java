@@ -261,7 +261,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			@Override
 			public void run() {
 				spectate().disableSpectateMode();
-				kickAllPlayers("The game has ended and is now resetting");
 				GamesManager.restartGame(game);
 			}
 		}.runTaskLater(getPlugin(), 15 * 20L);

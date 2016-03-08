@@ -21,7 +21,7 @@ public class GamesManager {
 	public static Set<Game> getEnabledGames() { return getGames(true); }
 	
 	private static Set<Game> getGames(Boolean returnOnlyEnabledGames) {
-    	return new HashSet<Game>(games.values());
+    	return new HashSet<>(games.values());
 	}
 	
 	public static Game startGame(String gameName) {
@@ -37,14 +37,14 @@ public class GamesManager {
 	}
 	
 	public static boolean stopGame (Game game) {
-		if (games.containsKey(game.getName()) == false) return false;
+		if (!games.containsKey(game.getName())) return false;
+		plugin.getLogger().info(String.format("Stopping game %s of type %s", game.getName(), game.getTypeName()));
 		game.cleanUp();
 		games.remove(game.getName());
 		return true;
 	}
 	
 	public static Game restartGame(Game game) {
-		plugin.getLogger().info(String.format("Restarting game %s of type %s", game.getName(), game.getType()));
 		String name = game.getName();
 		if (stopGame(game) == false) return null;
 		return plugin.loadGame(name);

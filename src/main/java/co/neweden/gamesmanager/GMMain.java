@@ -27,6 +27,14 @@ public class GMMain extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		for (Game game : GamesManager.getEnabledGames()) {
+			GamesManager.stopGame(game);
+		}
+		try {
+			FileUtils.deleteDirectory(new File("GamesManager_TempWorld"));
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 		logger.info(String.format("[%s] Disabled Version %s", getDescription().getName(), getDescription().getVersion()));
 	}
 	
@@ -104,6 +112,7 @@ public class GMMain extends JavaPlugin {
 
 		Game game = (Game) typeClass;
 		game.gameType = typeClass;
+		game.gameTypeName = type;
 		game.gameName = name;
 		game.construct();
 		GamesManager.games.put(name, game);

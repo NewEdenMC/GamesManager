@@ -105,7 +105,7 @@ public class MultiConfig extends TypeWrappers {
             if (config == null || config.equals(Config.GAMETYPE))
                 gtConfig.save(gtConfigFile);
         } catch (IllegalArgumentException ex) {
-            game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), game.getType()));
+            game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), game.getTypeName()));
         } catch (IOException ex) {
             game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Could not save config %s to %s", game.getName(), mConfigFile.getName(), mConfigFile.getPath()), ex);
         }

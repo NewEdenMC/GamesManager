@@ -8,6 +8,7 @@ import java.util.logging.Level;
 
 import co.neweden.gamesmanager.game.config.Parser;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,10 +26,11 @@ import org.bukkit.util.FileUtil;
 public class WorldsManager implements Listener {
 	
 	private Game game;
-	private Set<GMMap> maps = new HashSet<>();
+	private Set<GMMap> maps;
 	private GMMap currentMap;
 	
 	public WorldsManager(Game game) {
+		maps = new HashSet<>();
 		this.game = game;
 		Bukkit.getPluginManager().registerEvents(this, game.getPlugin());
 	}
@@ -79,7 +81,9 @@ public class WorldsManager implements Listener {
 			return null;
 		}
 		nWorld.setAutoSave(false);
-		return new GMMap(nWorld, worldName);
+		GMMap map = new GMMap(nWorld, worldName);
+		maps.add(map);
+		return map;
 	}
 
 	public GMMap getMap(World world) {
@@ -89,21 +93,30 @@ public class WorldsManager implements Listener {
 		return null;
 	}
 
-	public void unloadWorlds() {
-		for (GMMap map : maps) {
+	public void unloadMaps() {
+		Set<GMMap> tMaps = new HashSet<>();
+		tMaps.addAll(maps);
+		for (GMMap map : tMaps) {
 			unloadMap(map);
 		}
 	}
 
 	public boolean unloadMap(GMMap map) {
+		game.getPlugin().getLogger().info(String.format("[%s] Unloading and deleting map %s", game.getName(), map.getWorld().getName()));
 		maps.remove(map);
 		boolean unload = game.getPlugin().getServer().unloadWorld(map.getWorld(), false);
 		if (!unload) {
 			maps.add(map);
+			game.getPlugin().getLogger().warning(String.format("[%s] Unable to unload world %s", game.getName(), map.getWorld().getName()));
 			return false;
 		}
 		try {
-			FileUtils.deleteDirectory(new File(map.getBaseWorldName()));
+			FileUtils.deleteDirectory(new File(map.getWorld().getName()));
+
+			File root = new File("GamesManager_TempWorld");
+			if (root.list().length == 0)
+				FileUtils.deleteDirectory(root);
+
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
