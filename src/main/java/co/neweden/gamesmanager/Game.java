@@ -5,13 +5,12 @@ import java.util.*;
 import co.neweden.gamesmanager.game.*;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.spectate.Spectate;
-import co.neweden.gamesmanager.game.countdown.CMain;
+import co.neweden.gamesmanager.game.countdown_old.CMain;
 
 public class Game {
 	

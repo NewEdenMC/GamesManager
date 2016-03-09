@@ -24,7 +24,7 @@ import co.neweden.gamesmanager.event.GMPlayerLeaveGameEvent;
 import co.neweden.gamesmanager.game.BlockManager;
 import co.neweden.gamesmanager.game.BlockManager.FilterType;
 import co.neweden.gamesmanager.game.Chests;
-import co.neweden.gamesmanager.game.countdown.Countdown;
+import co.neweden.gamesmanager.game.countdown_old.Countdown;
 
 public class SurvivalGames extends Game implements GameType, Listener {
 	
