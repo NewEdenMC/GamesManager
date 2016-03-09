@@ -3,6 +3,10 @@ package co.neweden.gamesmanager.game.config;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,16 +30,28 @@ public class MultiConfig extends TypeWrappers {
 
     public MultiConfig(Game game) {
         this.game = game;
-        loadConfigFile(Config.GAMETYPE, "", game.getName() + ".yml");
 
-        String mapConfigPath = "";
-        String mapConfigName = game.getName() + ".yml";
+        mkdir("gameTypeConfigs");
+        loadConfigFile(Config.GAMETYPE, "gameTypeConfigs", game.getTypeName() + ".yml");
+
+        mkdir("mapConfigs");
+        String mapConfigPath = "gameTypeConfigs";
+        String mapConfigName = game.getTypeName() + ".yml";
         if (game.worlds().getCurrentMap() != null) {
             mapConfigPath = "mapConfigs";
             mapConfigName = game.worlds().getCurrentMap().getBaseWorldName() + ".yml";
         }
-
         loadConfigFile(Config.MAP, mapConfigPath, mapConfigName);
+    }
+
+    private void mkdir(String folderName) {
+        Path path = Paths.get(game.getPlugin().getDataFolder().getPath() + File.separator + folderName);
+        try {
+            Files.createDirectory(path);
+        } catch (FileAlreadyExistsException e) {
+        } catch (IOException e) {
+            game.getPlugin().getLogger().severe("IOException has occurred: " + e.getMessage());
+        }
     }
 
     public void switchMap(String mapName) {
