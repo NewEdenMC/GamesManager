@@ -4,6 +4,7 @@ import java.util.List;
 
 import co.neweden.gamesmanager.game.GMMap;
 import co.neweden.gamesmanager.game.config.MultiConfig;
+import co.neweden.gamesmanager.game.countdown.Run;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -30,6 +31,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	
 	String status;
 	GMMap gameMap;
+	Location lobbySpawn;
+	Integer minPlayersNeeded;
+	Integer lobbyCountdownToStart;
 
 	public SurvivalGames() {
 		Bukkit.getPluginManager().registerEvents(this, getPlugin());
@@ -38,6 +42,10 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	public void start() {
 		String lobbyWorld = getConfig().getString("lobbyworld");
 		worlds().setCurrentMap(worlds().loadMap(lobbyWorld));
+
+		lobbySpawn = getConfig().getLocation("lobbyspawn");
+		minPlayersNeeded = getConfig().getInt("minPlayersNeeded", 3);
+		lobbyCountdownToStart = getConfig().getInt("lobbyCountdownToStart", 60);
 
 		reservedSlots().enable();
 		spectate().playersSpectateOnDeath(true);
@@ -77,16 +85,16 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		switch (status) {
 			case "prelobby":
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
-				event.getPlayer().teleport(getConfig().getLocation("lobbyspawn"));
-				if (getPlayers().size() >= getConfig().getInt("minPlayersNeeded", 3)) {
+				event.getPlayer().teleport(lobbySpawn);
+				if (getPlayers().size() >= minPlayersNeeded) {
 					lobby();
 				} else {
-					event.getPlayer().sendMessage(Util.formatString("&eThe game is currently in pre-lobby, 3 players minimum needed to start."));
+					event.getPlayer().sendMessage(Util.formatString(String.format("&eThe game is currently in pre-lobby, %s players minimum needed to start.", minPlayersNeeded)));
 				}
 				break;
 			case "lobby":
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
-				event.getPlayer().teleport(getConfig().getLocation("lobbyspawn"));
+				event.getPlayer().teleport(lobbySpawn);
 				break;
 		}
 	}
@@ -97,7 +105,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		int playing = getPlaying().size() - 1;
 		
 		if (status.equals("lobby")) {
-			if (playing <= getConfig().getInt("minPlayersNeeded", 3)) preLobby();
+			if (playing <= minPlayersNeeded) preLobby();
 		}
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			if (playing <= 1) { endGame(); return; }
@@ -125,27 +133,26 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	public void onRespawn(PlayerRespawnEvent event) {
 		if (!getPlayers().contains(event.getPlayer())) return;
 		if (status.equals("prelobby") || status.equals("lobby"))
-			event.setRespawnLocation(getConfig().getLocation("lobbyspawn"));
+			event.setRespawnLocation(lobbySpawn);
 		else
-			event.setRespawnLocation(getConfig().getLocation("specspawn"));
+			event.setRespawnLocation(lobbySpawn);
 	}
 	
 	private void preLobby() {
 		spectate().disableSpectateMode();
 		countdown().stopAll();
 		status = "prelobby";
-		countdown().newCountdown(30, -1)
-			.broadcastMessageToGameAt(1, "&bWaiting on players, minimum of 3 required to start.")
-			.start();
+		countdown().newCountdown(30, 0, -1)
+				.at(0).broadcastMessage(String.format("&bWaiting on players, minimum of %s required to start.", getConfig().getInt("minPlayersNeeded", 3)))
+				.start();
 	}
 	
 	private void lobby() {
 		status = "lobby";
-		int time = getConfig().getInt("lobbyCountdownToStart", 60);
 		countdown().stopAll();
 		broadcast("&eMinimum players reached, game will start in 1 minute"); // TODO: Add more output
-		countdown().newCountdown(time)
-			.setBossBarForGameAt(time, "Game will start in %counter%!")
+		oldcountdown().newCountdown(lobbyCountdownToStart)
+			.setBossBarForGameAt(lobbyCountdownToStart, "Game will start in %counter%!")
 			.callMethodAt(1, this, "preIP")
 			.start();
 	}
@@ -173,14 +180,14 @@ public class SurvivalGames extends Game implements GameType, Listener {
 				resetDataForPlayers();
 			}
 		}.runTaskLater(getPlugin(), 1L);
-		Countdown cd = countdown().newCountdown(15)
-			.broadcastMessageToGameAt(15, "&bGame will start in 15 seconds, get ready!")
-			.broadcastMessageToGameAt(10, "&bGame will start in 10 seconds!")
-			.callMethodAt(0, this, "inprogress")
-			.start();
-		Countdown cd2 = cd.newCountdownAt(5, 1, 5, false);
-			cd2.broadcastMessageToGameAt(1, "&bGame will start in %counter% seconds!")
-			.start();
+		countdown().newCountdown()
+				.at(15).broadcastMessage("&bGame will start in 15 seconds, get ready!")
+				.at(10).broadcastMessage("&bGame will start in 10 seconds!")
+				.at(0).callMethod(this, "inprogress")
+				.start();
+		countdown().newCountdown(1, 10, 5)
+				.at(1).broadcastMessage( "&bGame will start in %counter% seconds!")
+				.start();
 	}
 	
 	public void inprogress() {
@@ -189,22 +196,22 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		stats().startListening();
 		broadcast("&eThe game has started!");
 		new Chests(this).startListening();
-		countdown().newCountdown(30, -1)
-			.broadcastMessageToGameAt(1, "&bCurrent players: %playing%")
-			.start();
+		countdown().newCountdown(30, 0, -1)
+				.at(0).broadcastMessage("&bCurrent players: %playing%")
+				.start();
 		int grace = getConfig().getInt("gracePeriodLength", 30);
 		if (grace > 0) {
-			countdown().newCountdown(grace)
-				.broadcastMessageToGameAt(grace, String.format("&b%s second PvP grace period has started!", grace))
-				.callMethodAt(0, this, "enablePVP")
-				.broadcastMessageToGameAt(0, "&bPvP Grace Period now over!")
-				.start();
+			countdown().newCountdown()
+					.at(grace).broadcastMessage(String.format("&b%s second PvP grace period has started!", grace))
+					.at(0).callMethod(this, "enablePVP")
+					.at(0).broadcastMessage("&bPvP Grace Period now over!")
+					.start();
 		}
 		countdown().newCountdown(getConfig().getInt("timeToDeathmatch", 600))
-			.broadcastMessageToGameAt(300, "&cDeathmatch in 5 minutes")
-			.broadcastMessageToGameAt(60, "&cDeathmatch in 1 minute, get ready!")
-			.callMethodAt(0, this, "preDeathmatch")
-			.start();
+				.at(300).broadcastMessage("&cDeathmatch in 5 minutes")
+				.at(60).broadcastMessage("&cDeathmatch in 1 minute, get ready!")
+				.at(0).callMethod(this, "preDeathmatch")
+				.start();
 	}
 
 	public void enablePVP() { setPVP(true); }
@@ -233,7 +240,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		worlds().setWorldBorder(gameMap.getWorld(), dmCentre, dmRadius);
 
 		countdown().newCountdown(countdown)
-			.callMethodAt(0, this, "deathmatch")
+			.at(0).callMethod(this, "deathmatch")
 			.start();
 	}
 	
@@ -242,10 +249,10 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		status = "deathmatch";
 		broadcast("&bDeathmatch has begun!");
 		countdown().newCountdown(getConfig().getInt("deathmatchLength", 120))
-			.broadcastMessageToGameAt(60, "&cDeathmatch will end in 60 seconds.")
-			.broadcastMessageToGameAt(30, "&cDeathmatch will end in 30 seconds.")
-			.broadcastMessageToGameAt(15, "&cDeathmatch will end in 15 seconds.")
-			.callMethodAt(0, this, "endGame")
+			.at(60).broadcastMessage("&cDeathmatch will end in 60 seconds.")
+			.at(30).broadcastMessage("&cDeathmatch will end in 30 seconds.")
+			.at(15).broadcastMessage("&cDeathmatch will end in 15 seconds.")
+			.at(0).callMethod(this, "endGame")
 			.start();
 	}
 	

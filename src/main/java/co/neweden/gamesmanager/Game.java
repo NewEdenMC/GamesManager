@@ -4,13 +4,13 @@ import java.util.*;
 
 import co.neweden.gamesmanager.game.*;
 import co.neweden.gamesmanager.game.config.MultiConfig;
+import co.neweden.gamesmanager.game.countdown.CMain;
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.spectate.Spectate;
-import co.neweden.gamesmanager.game.countdown_old.CMain;
 
 public class Game {
 	
@@ -35,6 +35,7 @@ public class Game {
 	public void cleanUp() {
 		kickAllPlayers("The game has ended and is now resetting");
 		countdown().removeAll();
+		oldcountdown().removeAll();
 		spectate.disableSpectateMode();
 		resetPVP();
 		worlds().unloadMaps();
@@ -109,15 +110,19 @@ public class Game {
 		return new HashSet<>(getConfig().getLocationList(configKey, new ArrayList<Location>(), true));
 	}
 	
-	private CMain cMain = null;
-	public CMain countdown() {
-		if (cMain != null)
-			return cMain;
+	private co.neweden.gamesmanager.game.countdown_old.CMain cMainOld = null;
+	@Deprecated
+	public co.neweden.gamesmanager.game.countdown_old.CMain oldcountdown() {
+		if (cMainOld != null)
+			return cMainOld;
 		else {
-			cMain = new CMain(this);
-			return cMain;
+			cMainOld = new co.neweden.gamesmanager.game.countdown_old.CMain(this);
+			return cMainOld;
 		}
 	}
+
+	private CMain cMain = new CMain(this);
+	public CMain countdown() { return cMain; }
 	
 	private HashMap<GMMap, Boolean> pvp = new HashMap<>();
 	
