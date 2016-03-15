@@ -61,15 +61,8 @@ public class WorldsManager implements Listener {
 					return null;
 				}
 			}
-			Files.createSymbolicLink(wPath, Paths.get(worldName));
-		} catch (FileSystemException ex) {
-			try {
-				FileUtils.copyDirectory(new File(worldName), wPath.toFile());
-				Files.delete(Paths.get(wPath + File.separator + "uid.dat"));
-			} catch (IOException ex2) {
-				game.getPlugin().getLogger().severe("IOException has occurred: " + ex2.getMessage());
-				return null;
-			}
+			FileUtils.copyDirectory(new File(worldName), wPath.toFile());
+			Files.delete(Paths.get(wPath + File.separator + "uid.dat"));
 		} catch (IOException ex) {
 			game.getPlugin().getLogger().severe("IOException has occurred: " + ex.getMessage());
 			return null;
