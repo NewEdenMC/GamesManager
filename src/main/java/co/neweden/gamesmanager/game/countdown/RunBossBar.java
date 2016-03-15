@@ -64,7 +64,7 @@ public class RunBossBar implements Listener {
             public void run() {
                 bossBar.setProgress((double) countdown / (double) time);
                 if (countdown == 0) {
-                    bossBar.setVisible(false);
+                    bossBar.removeAll();
                     this.cancel();
                 } else
                     countdown--;
