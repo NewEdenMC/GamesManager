@@ -52,10 +52,10 @@ public class Spectate implements Listener {
 	
 	@EventHandler
 	public void onPreJoinGame(GMPlayerPreJoinGameEvent event) {
-		if (event.isCancelled() == false &&
+		if (!event.isCancelled() &&
 			event.getGame().equals(game) &&
-			enableSpec == true &&
-			playersCanSpectate() == false)
+			enableSpec &&
+			!playersCanSpectate())
 		{
 			event.setKickMessage("You cannot join the game as the game is in progress mode and it is not possible to spectate this game.");
 			event.setCancelled(true);
@@ -64,10 +64,10 @@ public class Spectate implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onJoinGame(GMPlayerJoinGameEvent event) {
-		if (event.isCancelled() == false &&
+		if (!event.isCancelled() &&
 			event.getGame().equals(game) &&
-			enableSpec == true &&
-			playersCanSpectate() == true)
+			enableSpec &&
+			playersCanSpectate())
 		{
 			refreshHiddenPlayers();
 			activateSpectate(event.getPlayer());
@@ -76,7 +76,7 @@ public class Spectate implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeaveGame(GMPlayerLeaveGameEvent event) {
-		if (event.isCancelled() == false &&
+		if (!event.isCancelled() &&
 			event.getGame().equals(game) &&
 			spectators.contains(event.getPlayer()))
 			{
@@ -89,11 +89,11 @@ public class Spectate implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDeath(final PlayerDeathEvent event) {
-		if (game.getPlayers().contains(event.getEntity()) == false ||
-			enableSpec == false ||
-			specOnDeath == false) return;
+		if (!game.getPlayers().contains(event.getEntity()) ||
+			!enableSpec ||
+			!specOnDeath) return;
 		
-		if (playersCanSpectate() == true) {
+		if (playersCanSpectate()) {
 			respawnSpec.add(event.getEntity());
 		} else {
 			respawnKick.add(event.getEntity());
@@ -126,7 +126,7 @@ public class Spectate implements Listener {
 		GMPlayerSpectatingEvent spectatingEvent = new GMPlayerSpectatingEvent(player, game);
 		Bukkit.getServer().getPluginManager().callEvent(spectatingEvent);
 		
-		if (spectatingEvent.isCancelled() == true) return;
+		if (spectatingEvent.isCancelled()) return;
 		
 		spectators.add(player);
 		player.setAllowFlight(true);
