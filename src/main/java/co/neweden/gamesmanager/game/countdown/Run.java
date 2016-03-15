@@ -3,6 +3,9 @@ package co.neweden.gamesmanager.game.countdown;
 import co.neweden.gamesmanager.Util;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import sun.applet.resources.MsgAppletViewer_zh_CN;
@@ -15,16 +18,28 @@ import java.util.logging.Level;
 public class Run {
 
     private Countdown parent;
+    private Integer time;
     private List<Map.Entry<Countdown.Scope, String>> broadcast = new ArrayList<>();
+    private List<Map.Entry<Countdown.Scope, RunBossBar>> bar = new ArrayList<>();
     private List<Map.Entry<Object, String>> callMethod = new ArrayList<>();
 
-    public Run(Countdown parent) {
+    public Run(Countdown parent, Integer time) {
         this.parent = parent;
+        this.time = time;
     }
 
     public Countdown broadcastMessage(String message) { return broadcastMessage(Countdown.Scope.GAME, message); }
     public Countdown broadcastMessage(Countdown.Scope scope, String message) {
         broadcast.add(new AbstractMap.SimpleEntry<>(scope, message));
+        return parent;
+    }
+
+    public Countdown displayBossBar(BossBar bossBar) { return displayBossBar(Countdown.Scope.GAME, bossBar); }
+    public Countdown displayBossBar(BossBar bossBar, Integer time) { return displayBossBar(Countdown.Scope.GAME, bossBar, time); }
+    public Countdown displayBossBar(Countdown.Scope scope, BossBar bossBar) { return displayBossBar(scope, bossBar, null); }
+    public Countdown displayBossBar(Countdown.Scope scope, BossBar bossBar, Integer time) {
+        if (time == null) time = this.time;
+        bar.add(new AbstractMap.SimpleEntry<>(scope, new RunBossBar(parent, scope, bossBar, time)));
         return parent;
     }
 
@@ -42,6 +57,11 @@ public class Run {
                     break;
                 case GAME: parent.game.broadcast(message);
             }
+        }
+
+        // bossBar
+        for (Map.Entry<Countdown.Scope, RunBossBar> entry : bar) {
+            entry.getValue().start();
         }
 
         // call method

@@ -4,9 +4,10 @@ import java.util.List;
 
 import co.neweden.gamesmanager.game.GMMap;
 import co.neweden.gamesmanager.game.config.MultiConfig;
-import co.neweden.gamesmanager.game.countdown.Run;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -25,7 +26,6 @@ import co.neweden.gamesmanager.event.GMPlayerLeaveGameEvent;
 import co.neweden.gamesmanager.game.BlockManager;
 import co.neweden.gamesmanager.game.BlockManager.FilterType;
 import co.neweden.gamesmanager.game.Chests;
-import co.neweden.gamesmanager.game.countdown_old.Countdown;
 
 public class SurvivalGames extends Game implements GameType, Listener {
 	
@@ -151,9 +151,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		status = "lobby";
 		countdown().stopAll();
 		broadcast("&eMinimum players reached, game will start in 1 minute"); // TODO: Add more output
-		oldcountdown().newCountdown(lobbyCountdownToStart)
-			.setBossBarForGameAt(lobbyCountdownToStart, "Game will start in %counter%!")
-			.callMethodAt(1, this, "preIP")
+		countdown().newCountdown()
+			.at(lobbyCountdownToStart).displayBossBar(Bukkit.createBossBar(Util.formatString("&e&lGame starting soon, get ready!"), BarColor.PURPLE, BarStyle.SOLID))
+			.at(0).callMethod(this, "preIP")
 			.start();
 	}
 	
@@ -210,6 +210,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		countdown().newCountdown(getConfig().getInt("timeToDeathmatch", 600))
 				.at(300).broadcastMessage("&cDeathmatch in 5 minutes")
 				.at(60).broadcastMessage("&cDeathmatch in 1 minute, get ready!")
+				.at(60).displayBossBar(Bukkit.createBossBar(Util.formatString("&e&lDeathmatch starting soon, get ready!"), BarColor.PURPLE, BarStyle.SOLID))
 				.at(0).callMethod(this, "preDeathmatch")
 				.start();
 	}

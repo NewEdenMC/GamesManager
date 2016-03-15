@@ -43,7 +43,7 @@ public class Countdown {
         if (runAt.get(seconds) != null) {
             return runAt.get(seconds);
         } else {
-            Run run = new Run(this);
+            Run run = new Run(this, seconds);
             runAt.put(seconds, run);
             if (seconds > last) last = seconds;
             return run;
