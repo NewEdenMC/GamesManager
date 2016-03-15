@@ -81,10 +81,10 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	public void onJoin(GMPlayerJoinGameEvent event) {
 		if (!getPlayers().contains(event.getPlayer())) return;
 		resetDataForPlayer(event.getPlayer());
-		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Hunger Games, current players " + getPlaying().size()));
+		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Survival Games, current players " + getPlaying().size()));
 		switch (status) {
 			case "prelobby":
-				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
+				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Survival Games, type &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
 				event.getPlayer().teleport(lobbySpawn);
 				if (getPlayers().size() >= minPlayersNeeded) {
 					lobby();
@@ -93,7 +93,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 				}
 				break;
 			case "lobby":
-				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Hunger Games, join now to play!"), event.getPlayer().getName()));
+				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Survival Games, &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
 				event.getPlayer().teleport(lobbySpawn);
 				break;
 		}
