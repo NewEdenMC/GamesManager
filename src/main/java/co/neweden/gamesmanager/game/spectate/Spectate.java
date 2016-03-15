@@ -117,7 +117,7 @@ public class Spectate implements Listener {
 		}
 		if (respawnSpec.contains(event.getPlayer())) {
 			respawnSpec.remove(event.getPlayer());
-			event.setRespawnLocation(game.getSpecSpawnLocation());
+			event.setRespawnLocation(game.getConfig().getLocation("specspawn"));
 			activateSpectate(event.getPlayer());
 		}
 	}

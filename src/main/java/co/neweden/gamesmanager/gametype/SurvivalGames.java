@@ -134,8 +134,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		if (!getPlayers().contains(event.getPlayer())) return;
 		if (status.equals("prelobby") || status.equals("lobby"))
 			event.setRespawnLocation(lobbySpawn);
-		else
-			event.setRespawnLocation(lobbySpawn);
 	}
 	
 	private void preLobby() {
