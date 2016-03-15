@@ -74,6 +74,7 @@ public class WorldsManager implements Listener {
 			return null;
 		}
 		nWorld.setAutoSave(false);
+		nWorld.setGameRuleValue("doMobSpawning", "false");
 		GMMap map = new GMMap(nWorld, worldName);
 		maps.add(map);
 		return map;
