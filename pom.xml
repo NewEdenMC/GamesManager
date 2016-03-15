@@ -26,11 +26,6 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-        <!--BarAPI-->
-        <repository>
-            <id>confuser-repo</id>
-            <url>http://ci.frostcast.net/plugin/repository/everything</url>
-        </repository>
     </repositories>
     <dependencies>
         <!--Spigot API-->
@@ -46,12 +41,6 @@
             <artifactId>bukkit</artifactId>
             <version>1.9-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <!--Bar API-->
-        <dependency>
-            <groupId>me.confuser</groupId>
-            <artifactId>BarAPI</artifactId>
-            <version>3.4-SNAPSHOT</version>
         </dependency>
         <!--Apache-->
         <dependency>

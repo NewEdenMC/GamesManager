@@ -35,7 +35,6 @@ public class Game {
 	public void cleanUp() {
 		kickAllPlayers("The game has ended and is now resetting");
 		countdown().removeAll();
-		oldcountdown().removeAll();
 		spectate.disableSpectateMode();
 		resetPVP();
 		worlds().unloadMaps();
@@ -108,17 +107,6 @@ public class Game {
 	@Deprecated
 	public Set<Location> getConfigLocations(String configKey) {
 		return new HashSet<>(getConfig().getLocationList(configKey, new ArrayList<Location>(), true));
-	}
-	
-	private co.neweden.gamesmanager.game.countdown_old.CMain cMainOld = null;
-	@Deprecated
-	public co.neweden.gamesmanager.game.countdown_old.CMain oldcountdown() {
-		if (cMainOld != null)
-			return cMainOld;
-		else {
-			cMainOld = new co.neweden.gamesmanager.game.countdown_old.CMain(this);
-			return cMainOld;
-		}
 	}
 
 	private CMain cMain = new CMain(this);
