@@ -80,9 +80,9 @@ public class Run {
 
     public String formatMessage(String message) {
         message = Util.formatString(message);
-        message = message.replaceAll("%counter%", new Integer(parent.counter * parent.repeat).toString());
+        message = message.replaceAll("%counter%", Integer.toString(parent.counter * parent.repeat));
         message = message.replaceAll("%totalPlaying%", "" + parent.game.getPlaying().size());
-        Set<String> playingPlayerNames = new HashSet<String>();
+        Set<String> playingPlayerNames = new HashSet<>();
         for (Player player : parent.game.getPlaying()) {
             playingPlayerNames.add(player.getName());
         }
