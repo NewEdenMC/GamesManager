@@ -15,16 +15,15 @@ import java.util.logging.Level;
 public class Run {
 
     private Countdown parent;
-    public enum MsgScope { SERVER, GAME }
-    private List<Map.Entry<MsgScope, String>> broadcast = new ArrayList<>();
+    private List<Map.Entry<Countdown.Scope, String>> broadcast = new ArrayList<>();
     private List<Map.Entry<Object, String>> callMethod = new ArrayList<>();
 
     public Run(Countdown parent) {
         this.parent = parent;
     }
 
-    public Countdown broadcastMessage(String message) { return broadcastMessage(MsgScope.GAME, message); }
-    public Countdown broadcastMessage(MsgScope scope, String message) {
+    public Countdown broadcastMessage(String message) { return broadcastMessage(Countdown.Scope.GAME, message); }
+    public Countdown broadcastMessage(Countdown.Scope scope, String message) {
         broadcast.add(new AbstractMap.SimpleEntry<>(scope, message));
         return parent;
     }
@@ -36,7 +35,7 @@ public class Run {
 
     protected void run() {
         // broadcast messages
-        for (Map.Entry<MsgScope, String> entry : broadcast) {
+        for (Map.Entry<Countdown.Scope, String> entry : broadcast) {
             String message = formatMessage(entry.getValue());
             switch (entry.getKey()) {
                 case SERVER: parent.game.getPlugin().getServer().broadcastMessage(Util.formatString(message));

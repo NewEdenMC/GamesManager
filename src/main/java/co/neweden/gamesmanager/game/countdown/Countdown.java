@@ -19,6 +19,7 @@ public class Countdown {
     private Integer last = 0;
     private BukkitTask scheduler;
     protected Integer counter = 0;
+    public enum Scope { SERVER, GAME }
 
     public Countdown(Game game, Integer cID, Integer startAt, Integer startDelay, Integer repeat) {
         this.game = game;
