@@ -110,7 +110,7 @@ public class GamesManager {
 	}
 	
 	public static void refreshPlayerLists() {
-		for (Game game : GamesManager.games.values()) {
+		for (Game game : GamesManager.getEnabledGames()) {
 			game.refreshPlayerList();
 		}
 	}
