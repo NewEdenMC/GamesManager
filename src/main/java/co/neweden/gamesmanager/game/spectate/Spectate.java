@@ -105,7 +105,7 @@ public class Spectate implements Listener {
 		}.runTaskLater(game.getPlugin(), 1L);
 	}
 	
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
 		if (respawnKick.contains(event.getPlayer())) {
 			respawnKick.remove(event.getPlayer());
