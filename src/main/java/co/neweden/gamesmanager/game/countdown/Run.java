@@ -1,6 +1,7 @@
 package co.neweden.gamesmanager.game.countdown;
 
 import co.neweden.gamesmanager.Util;
+import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -20,6 +21,7 @@ public class Run {
     private Countdown parent;
     private Integer time;
     private List<Map.Entry<Countdown.Scope, String>> broadcast = new ArrayList<>();
+    private List<Map.Entry<Countdown.Scope, List<String>>> broadcastTitle = new ArrayList();
     private List<Map.Entry<Countdown.Scope, RunBossBar>> bar = new ArrayList<>();
     private List<Map.Entry<Object, String>> callMethod = new ArrayList<>();
 
@@ -31,6 +33,17 @@ public class Run {
     public Countdown broadcastMessage(String message) { return broadcastMessage(Countdown.Scope.GAME, message); }
     public Countdown broadcastMessage(Countdown.Scope scope, String message) {
         broadcast.add(new AbstractMap.SimpleEntry<>(scope, message));
+        return parent;
+    }
+
+    public Countdown broadcastTitle(String title, String subTitle) { return broadcastTitle(Countdown.Scope.GAME, title, subTitle, 5); }
+    public Countdown broadcastTitle(Countdown.Scope scope, String title, String subTitle, Integer duration) {
+        List<String> list = new ArrayList<>();
+        list.add(String.format("times 10 %s 10", Integer.toString(duration * 20)));
+        list.add(String.format("title {\"text\":\"%s\"}", ChatColor.translateAlternateColorCodes('&', title)));
+        list.add(String.format("subtitle {\"text\":\"%s\"}", ChatColor.translateAlternateColorCodes('&', subTitle)));
+
+        broadcastTitle.add(new AbstractMap.SimpleEntry<>(scope, list));
         return parent;
     }
 
@@ -56,6 +69,22 @@ public class Run {
                 case SERVER: parent.game.getPlugin().getServer().broadcastMessage(Util.formatString(message));
                     break;
                 case GAME: parent.game.broadcast(message);
+            }
+        }
+
+        // title
+        for (Map.Entry<Countdown.Scope, List<String>> entry : broadcastTitle) {
+            for (String command : entry.getValue()) {
+                String message = formatMessage(command);
+                switch (entry.getKey()) {
+                    case SERVER:
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title @a " + message);
+                        break;
+                    case GAME:
+                        for (Player player : parent.game.getPlayers()) {
+                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title " + player.getName() + " " + message);
+                        }
+                }
             }
         }
 

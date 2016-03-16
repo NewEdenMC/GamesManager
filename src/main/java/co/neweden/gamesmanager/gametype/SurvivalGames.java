@@ -4,6 +4,7 @@ import java.util.List;
 
 import co.neweden.gamesmanager.game.GMMap;
 import co.neweden.gamesmanager.game.config.MultiConfig;
+import co.neweden.gamesmanager.game.countdown.Countdown;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
@@ -184,7 +185,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 				.at(0).callMethod(this, "inprogress")
 				.start();
 		countdown().newCountdown(1, 10, 5)
-				.at(1).broadcastMessage( "&bGame will start in %counter% seconds!")
+				.at(1).broadcastTitle("&b%counter%", "&aseconds until game begins!")
 				.start();
 	}
 	
