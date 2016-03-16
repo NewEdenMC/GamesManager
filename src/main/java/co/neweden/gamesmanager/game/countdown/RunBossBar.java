@@ -43,7 +43,7 @@ public class RunBossBar implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLeaveGame(GMPlayerLeaveGameEvent event) {
         if (main.game.getPlayers().contains(event.getPlayer()) && scope.equals(Countdown.Scope.GAME))
-            bossBar.addPlayer(event.getPlayer());
+            bossBar.removePlayer(event.getPlayer());
     }
 
     protected void start() {
