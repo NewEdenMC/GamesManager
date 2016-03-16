@@ -82,33 +82,6 @@ public class Game {
 	public Integer getMinPlayerCount() { return getConfig().getInt("minplayers", 0); }
 	public Integer getMaxPlayerCount() { return getConfig().getInt("maxplayers", 0); }
 
-	@Deprecated
-	public Set<Location> getSpawnLocations() {
-		Set<Location> spawnLocations = new HashSet<Location>();
-		try {
-			spawnLocations.add(getLobbySpawnLocation());
-		} catch (NullPointerException ex) { }
-		try {
-			spawnLocations.add(getSpecSpawnLocation());
-		} catch (NullPointerException ex) { }
-		spawnLocations.addAll(getGameSpawnLocations());
-		spawnLocations.addAll(getDMSpawnLocations());
-		return spawnLocations;
-	}
-
-	@Deprecated
-	public Location getLobbySpawnLocation() { return getConfig().getLocation("lobbyspawn", null, true); }
-	@Deprecated
-	public Location getSpecSpawnLocation() { return getConfig().getLocation(getMapConfigPath() + ".specspawn", null, true); }
-	@Deprecated
-	public Set<Location> getGameSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".gamespawns"); }
-	@Deprecated
-	public Set<Location> getDMSpawnLocations() { return getConfigLocations(getMapConfigPath() + ".dmspawns"); }
-	@Deprecated
-	public Set<Location> getConfigLocations(String configKey) {
-		return new HashSet<>(getConfig().getLocationList(configKey, new ArrayList<Location>(), true));
-	}
-
 	private CMain cMain = new CMain(this);
 	public CMain countdown() { return cMain; }
 	
@@ -178,7 +151,7 @@ public class Game {
 	}
 	
 	public void kickAllPlayers(String message) {
-		Set<Player> toKick = new HashSet<Player>();
+		Set<Player> toKick = new HashSet<>();
 		toKick.addAll(getPlayers());
 		for (Player player : toKick) {
 			kickPlayer(player, message);
