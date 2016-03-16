@@ -5,6 +5,8 @@ import java.util.*;
 import co.neweden.gamesmanager.game.*;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import co.neweden.gamesmanager.game.countdown.CMain;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
@@ -149,7 +151,16 @@ public class Game {
 			player.sendMessage(Util.formatString(message));
 		}
 	}
-	
+
+	public void broadcastTitle(String title, String subTitle) { broadcastTitle(title, subTitle, 20L, 100L, 20L); }
+	public void broadcastTitle(String title, String subTitle, Long fadeIn, Long stay, Long fadeOut) {
+		for (Player player : getPlayers()) {
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s times %s %s %s", player.getName(), Long.toString(fadeIn), Long.toString(stay), Long.toString(fadeOut)));
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s title {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', title)));
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s subtitle {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', subTitle)));
+		}
+	}
+
 	public void kickAllPlayers(String message) {
 		Set<Player> toKick = new HashSet<>();
 		toKick.addAll(getPlayers());

@@ -21,7 +21,7 @@ public class Run {
     private Countdown parent;
     private Integer time;
     private List<String> broadcast = new ArrayList<>();
-    private List<List<String>> broadcastTitle = new ArrayList();
+    private List<List<Object>> broadcastTitle = new ArrayList();
     private List<RunBossBar> bar = new ArrayList<>();
     private List<Map.Entry<Object, String>> callMethod = new ArrayList<>();
 
@@ -36,11 +36,10 @@ public class Run {
     }
 
     public Countdown broadcastTitle(String title, String subTitle) { return broadcastTitle(title, subTitle, 5); }
-    public Countdown broadcastTitle(String title, String subTitle, Integer duration) {
-        List<String> list = new ArrayList<>();
-        list.add(String.format("times 10 %s 10", Integer.toString(duration * 20)));
-        list.add(String.format("title {\"text\":\"%s\"}", ChatColor.translateAlternateColorCodes('&', title)));
-        list.add(String.format("subtitle {\"text\":\"%s\"}", ChatColor.translateAlternateColorCodes('&', subTitle)));
+    public Countdown broadcastTitle(String title, String subTitle, Integer duration) { return broadcastTitle(title, subTitle, 10L, duration * 20L, 10L); }
+    public Countdown broadcastTitle(String title, String subTitle, Long fadeIn, Long stay, Long fadeOut) {
+        List<Object> list = new ArrayList<>();
+        list.add(title); list.add(subTitle); list.add(fadeIn); list.add(stay); list.add(fadeOut);
         broadcastTitle.add(list);
         return parent;
     }
@@ -64,13 +63,10 @@ public class Run {
         }
 
         // title
-        for (List<String> entry : broadcastTitle) {
-            for (String command : entry) {
-                String message = formatMessage(command);
-                for (Player player : parent.game.getPlayers()) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title " + player.getName() + " " + message);
-                }
-            }
+        for (List<Object> entry : broadcastTitle) {
+            parent.game.broadcastTitle(
+                    formatMessage(entry.get(0).toString()), entry.get(1).toString(), (long) entry.get(2), (long) entry.get(3), (long) entry.get(4)
+            );
         }
 
         // bossBar
