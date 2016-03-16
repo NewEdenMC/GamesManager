@@ -17,43 +17,31 @@ import java.util.Set;
 public class RunBossBar implements Listener {
 
     private Countdown main;
-    protected Countdown.Scope scope = Countdown.Scope.GAME;
     protected BossBar bossBar;
     protected Integer time;
     private Integer countdown;
 
-    protected RunBossBar(Countdown countdown, Countdown.Scope scope, BossBar bar, Integer time) {
+    protected RunBossBar(Countdown countdown, BossBar bar, Integer time) {
         main = countdown;
-        this.scope = scope; bossBar = bar; this.time = time;
+        bossBar = bar; this.time = time;
         Bukkit.getPluginManager().registerEvents(this, countdown.game.getPlugin());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoinGame(GMPlayerJoinGameEvent event) {
-        if (main.game.getPlayers().contains(event.getPlayer()) && scope.equals(Countdown.Scope.GAME))
-            bossBar.addPlayer(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onJoinServer(PlayerJoinEvent event) {
-        if (scope.equals(Countdown.Scope.SERVER))
+        if (main.game.getPlayers().contains(event.getPlayer()))
             bossBar.addPlayer(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onLeaveGame(GMPlayerLeaveGameEvent event) {
-        if (main.game.getPlayers().contains(event.getPlayer()) && scope.equals(Countdown.Scope.GAME))
+        if (main.game.getPlayers().contains(event.getPlayer()))
             bossBar.removePlayer(event.getPlayer());
     }
 
     protected void start() {
         Set<Player> initPlayers = new HashSet<>();
-        switch (scope) {
-            case GAME: initPlayers.addAll(main.game.getPlayers());
-                break;
-            case SERVER: initPlayers.addAll(Bukkit.getOnlinePlayers());
-                break;
-        }
+        initPlayers.addAll(main.game.getPlayers());
         for (Player player : initPlayers) {
             bossBar.addPlayer(player);
         }

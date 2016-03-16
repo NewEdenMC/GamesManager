@@ -20,9 +20,9 @@ public class Run {
 
     private Countdown parent;
     private Integer time;
-    private List<Map.Entry<Countdown.Scope, String>> broadcast = new ArrayList<>();
-    private List<Map.Entry<Countdown.Scope, List<String>>> broadcastTitle = new ArrayList();
-    private List<Map.Entry<Countdown.Scope, RunBossBar>> bar = new ArrayList<>();
+    private List<String> broadcast = new ArrayList<>();
+    private List<List<String>> broadcastTitle = new ArrayList();
+    private List<RunBossBar> bar = new ArrayList<>();
     private List<Map.Entry<Object, String>> callMethod = new ArrayList<>();
 
     public Run(Countdown parent, Integer time) {
@@ -30,29 +30,25 @@ public class Run {
         this.time = time;
     }
 
-    public Countdown broadcastMessage(String message) { return broadcastMessage(Countdown.Scope.GAME, message); }
-    public Countdown broadcastMessage(Countdown.Scope scope, String message) {
-        broadcast.add(new AbstractMap.SimpleEntry<>(scope, message));
+    public Countdown broadcastMessage(String message) {
+        broadcast.add(message);
         return parent;
     }
 
-    public Countdown broadcastTitle(String title, String subTitle) { return broadcastTitle(Countdown.Scope.GAME, title, subTitle, 5); }
-    public Countdown broadcastTitle(Countdown.Scope scope, String title, String subTitle, Integer duration) {
+    public Countdown broadcastTitle(String title, String subTitle) { return broadcastTitle(title, subTitle, 5); }
+    public Countdown broadcastTitle(String title, String subTitle, Integer duration) {
         List<String> list = new ArrayList<>();
         list.add(String.format("times 10 %s 10", Integer.toString(duration * 20)));
         list.add(String.format("title {\"text\":\"%s\"}", ChatColor.translateAlternateColorCodes('&', title)));
         list.add(String.format("subtitle {\"text\":\"%s\"}", ChatColor.translateAlternateColorCodes('&', subTitle)));
-
-        broadcastTitle.add(new AbstractMap.SimpleEntry<>(scope, list));
+        broadcastTitle.add(list);
         return parent;
     }
 
-    public Countdown displayBossBar(BossBar bossBar) { return displayBossBar(Countdown.Scope.GAME, bossBar); }
-    public Countdown displayBossBar(BossBar bossBar, Integer time) { return displayBossBar(Countdown.Scope.GAME, bossBar, time); }
-    public Countdown displayBossBar(Countdown.Scope scope, BossBar bossBar) { return displayBossBar(scope, bossBar, null); }
-    public Countdown displayBossBar(Countdown.Scope scope, BossBar bossBar, Integer time) {
+    public Countdown displayBossBar(BossBar bossBar) { return displayBossBar(bossBar, null); }
+    public Countdown displayBossBar(BossBar bossBar, Integer time) {
         if (time == null) time = this.time;
-        bar.add(new AbstractMap.SimpleEntry<>(scope, new RunBossBar(parent, scope, bossBar, time)));
+        bar.add(new RunBossBar(parent, bossBar, time));
         return parent;
     }
 
@@ -63,34 +59,23 @@ public class Run {
 
     protected void run() {
         // broadcast messages
-        for (Map.Entry<Countdown.Scope, String> entry : broadcast) {
-            String message = formatMessage(entry.getValue());
-            switch (entry.getKey()) {
-                case SERVER: parent.game.getPlugin().getServer().broadcastMessage(Util.formatString(message));
-                    break;
-                case GAME: parent.game.broadcast(message);
-            }
+        for (String message : broadcast) {
+            parent.game.broadcast(formatMessage(message));
         }
 
         // title
-        for (Map.Entry<Countdown.Scope, List<String>> entry : broadcastTitle) {
-            for (String command : entry.getValue()) {
+        for (List<String> entry : broadcastTitle) {
+            for (String command : entry) {
                 String message = formatMessage(command);
-                switch (entry.getKey()) {
-                    case SERVER:
-                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title @a " + message);
-                        break;
-                    case GAME:
-                        for (Player player : parent.game.getPlayers()) {
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title " + player.getName() + " " + message);
-                        }
+                for (Player player : parent.game.getPlayers()) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "title " + player.getName() + " " + message);
                 }
             }
         }
 
         // bossBar
-        for (Map.Entry<Countdown.Scope, RunBossBar> entry : bar) {
-            entry.getValue().start();
+        for (RunBossBar runBossBar : bar) {
+            runBossBar.start();
         }
 
         // call method
