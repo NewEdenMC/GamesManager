@@ -193,7 +193,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		status = "inprogress";
 		freezePlayers().disable();
 		stats().startListening();
-		broadcast("&eThe game has started!");
+		broadcastTitle("", "&eThe game has started!", 10L, 40L, 10L);
 		new Chests(this).startListening();
 		countdown().newCountdown(120, 0, -1)
 				.at(0).broadcastMessage("&bCurrent players: %playing%")
