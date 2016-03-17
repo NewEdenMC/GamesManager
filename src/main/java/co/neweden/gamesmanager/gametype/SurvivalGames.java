@@ -195,7 +195,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		stats().startListening();
 		broadcast("&eThe game has started!");
 		new Chests(this).startListening();
-		countdown().newCountdown(30, 0, -1)
+		countdown().newCountdown(120, 0, -1)
 				.at(0).broadcastMessage("&bCurrent players: %playing%")
 				.start();
 		int grace = getConfig().getInt("gracePeriodLength", 30);
