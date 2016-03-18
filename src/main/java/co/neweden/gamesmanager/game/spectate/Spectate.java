@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,7 +21,6 @@ import co.neweden.gamesmanager.event.GMPlayerJoinGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerLeaveGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerPreJoinGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerSpectatingEvent;
-import co.neweden.gamesmanager.game.spectate.SpectateVanishEvents;
 
 public class Spectate implements Listener {
 	
@@ -84,9 +85,9 @@ public class Spectate implements Listener {
 			}
 	}
 	
-	private Set<Player> respawnKick = new HashSet<Player>();
-	private Set<Player> respawnSpec = new HashSet<Player>();
-	
+	private Set<Player> respawnKick = new HashSet<>();
+	private Set<Player> respawnSpec = new HashSet<>();
+
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerDeath(final PlayerDeathEvent event) {
 		if (!game.getPlayers().contains(event.getEntity()) ||
@@ -117,12 +118,13 @@ public class Spectate implements Listener {
 		}
 		if (respawnSpec.contains(event.getPlayer())) {
 			respawnSpec.remove(event.getPlayer());
-			event.setRespawnLocation(game.getConfig().getLocation("specspawn"));
-			activateSpectate(event.getPlayer());
+			event.setRespawnLocation(event.getPlayer().getLocation());
+			activateSpectate(event.getPlayer(), "&4You are now dead!");
 		}
 	}
-	
-	public void activateSpectate(Player player) {
+
+	public void activateSpectate(final Player player) { activateSpectate(player, ""); }
+	public void activateSpectate(final Player player, final String specTitleReason) {
 		GMPlayerSpectatingEvent spectatingEvent = new GMPlayerSpectatingEvent(player, game);
 		Bukkit.getServer().getPluginManager().callEvent(spectatingEvent);
 		
@@ -132,7 +134,19 @@ public class Spectate implements Listener {
 		player.setAllowFlight(true);
 		player.setFlying(true);
 		hidePlayerFromGame(player);
-		player.sendMessage(Util.formatString("&aYou are now spectatig the game."));
+		final Location loc = player.getLocation();
+		loc.setY(loc.getY() + 4);
+		if (loc.getBlock().getType().equals(Material.AIR)) {
+			loc.setY(loc.getY() - 1);
+		} else {
+			loc.setY(loc.getY() - 4);
+		}
+		new BukkitRunnable() {
+			@Override public void run() {
+				player.teleport(loc);
+				Util.playerSendTitle(player, specTitleReason, "&eYou are now spectating the game.");
+			}
+		}.runTaskLater(game.getPlugin(), 1L);
 	}
 	
 	public void deactivateSpectate(Player player) {
