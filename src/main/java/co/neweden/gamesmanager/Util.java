@@ -1,5 +1,9 @@
 package co.neweden.gamesmanager;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
 public final class Util {
 	
 	private Util() { }
@@ -29,6 +33,13 @@ public final class Util {
 		text = text.replaceAll("&r", "\u00A7r"); // Reset
 		
 		return text;
+	}
+
+	public static void playerSendTitle(Player player, String title, String subTitle) { playerSendTitle(player, title, subTitle, 20L, 100L, 20L); }
+	public static void playerSendTitle(Player player, String title, String subTitle, Long fadeIn, Long stay, Long fadeOut) {
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s times %s %s %s", player.getName(), Long.toString(fadeIn), Long.toString(stay), Long.toString(fadeOut)));
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s title {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', title)));
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s subtitle {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', subTitle)));
 	}
 	
 }

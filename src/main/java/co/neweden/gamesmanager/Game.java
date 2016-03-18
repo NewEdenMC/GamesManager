@@ -155,9 +155,7 @@ public class Game {
 	public void broadcastTitle(String title, String subTitle) { broadcastTitle(title, subTitle, 20L, 100L, 20L); }
 	public void broadcastTitle(String title, String subTitle, Long fadeIn, Long stay, Long fadeOut) {
 		for (Player player : getPlayers()) {
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s times %s %s %s", player.getName(), Long.toString(fadeIn), Long.toString(stay), Long.toString(fadeOut)));
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s title {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', title)));
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s subtitle {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', subTitle)));
+			Util.playerSendTitle(player, title, subTitle, fadeIn, stay, fadeOut);
 		}
 	}
 
