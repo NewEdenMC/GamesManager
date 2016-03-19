@@ -31,7 +31,7 @@ public class Spectate implements Listener {
 	
 	public Spectate(Game game) {
 		this.game = game;
-		spectators = new HashSet<Player>();
+		spectators = new HashSet<>();
 		Bukkit.getServer().getPluginManager().registerEvents(this, game.getPlugin());
 		new SpectateVanishEvents(this);
 	}
@@ -143,8 +143,8 @@ public class Spectate implements Listener {
 		}
 		new BukkitRunnable() {
 			@Override public void run() {
-				player.teleport(loc);
 				Util.playerSendTitle(player, specTitleReason, "&eYou are now spectating the game.");
+				player.teleport(loc);
 			}
 		}.runTaskLater(game.getPlugin(), 1L);
 	}
