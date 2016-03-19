@@ -81,8 +81,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	@EventHandler
 	public void onJoin(GMPlayerJoinGameEvent event) {
 		if (!getPlayers().contains(event.getPlayer())) return;
-		resetDataForPlayer(event.getPlayer());
-		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Survival Games, current players " + getPlaying().size()));
 		switch (status) {
 			case "prelobby":
 				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Survival Games, type &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
@@ -98,6 +96,8 @@ public class SurvivalGames extends Game implements GameType, Listener {
 				event.getPlayer().teleport(lobbySpawn);
 				break;
 		}
+		resetDataForPlayer(event.getPlayer());
+		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Survival Games, current players " + getPlaying().size()));
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
