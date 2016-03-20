@@ -83,27 +83,24 @@ public class Run {
     private void runMethod(Object object, String methodName) {
         Class<? extends Object> cls = object.getClass();
         Class<?> noparams[] = {};
-        Method method;
+        Method method = null;
         try {
             method = cls.getDeclaredMethod(methodName, noparams);
         } catch (SecurityException e) {
-            parent.game.getPlugin().getLogger().severe(String.format("[%s] Unable to call method %s in class %s: a security exception occurred.", parent.game.getName(), methodName, object.toString()));
-            throw e;
+            parent.game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Unable to call method %s in class %s: a security exception occurred.", parent.game.getName(), methodName, object.toString()), e);
         } catch (NoSuchMethodException e) {
-            parent.game.getPlugin().getLogger().severe(String.format("[%s] Unable to call method %s in class %s: the method either does not exist or is not visible (is the method private?).", parent.game.getName(), methodName, object.toString()));
-            throw new NullPointerException();
+            parent.game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Unable to call method %s in class %s: the method either does not exist or is not visible (is the method private?).", parent.game.getName(), methodName, object.toString()), e);
+        } catch (NullPointerException e) {
+            parent.game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Unable to call method %s in class %s: null was returned when trying to get java.lang.reflect.Method", parent.game.getName(), methodName, object.toString()), e);
         }
         try {
             method.invoke(object, (Object[])null);
         } catch (IllegalArgumentException e) {
-            parent.game.getPlugin().getLogger().severe(String.format("[%s] Unable to call method %s in class %s: illegal arguments exception.", parent.game.getName(), methodName, object.toString()));
-            throw e;
+            parent.game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Unable to call method %s in class %s: illegal arguments exception.", parent.game.getName(), methodName, object.toString()), e);
         } catch (IllegalAccessException e) {
-            parent.game.getPlugin().getLogger().severe(String.format("[%s] Unable to call method %s in class %s: illegal access exception.", parent.game.getName(), methodName, object.toString()));
-            throw new IllegalArgumentException();
+            parent.game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Unable to call method %s in class %s: illegal access exception.", parent.game.getName(), methodName, object.toString()), e);
         } catch (InvocationTargetException e) {
-            parent.game.getPlugin().getLogger().severe(String.format("[%s] Unable to call method %s in class %s: invocation target exception.", parent.game.getName(), methodName, object.toString()));
-            throw new IllegalArgumentException();
+            parent.game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Unable to call method %s in class %s: invocation target exception.", parent.game.getName(), methodName, object.toString()), e);
         }
 
     }
