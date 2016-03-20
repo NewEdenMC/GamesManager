@@ -219,7 +219,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	public void preDeathmatch() {
 		freezePlayers().enable();
 		status = "deathmatch";
-		int countdown = getConfig().getInt("countdownToDeathmatch", 30);
+		int countdown = getConfig().getInt("countdownToDeathmatch", 15);
 		broadcast(String.format("&cDeathmatch stats in %s seconds, get ready!", countdown));
 
 		List<Location> spawnsList = getConfig().getLocationList("dmspawns", null, true);
