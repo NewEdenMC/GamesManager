@@ -35,6 +35,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	Location lobbySpawn;
 	Integer minPlayersNeeded;
 	Integer lobbyCountdownToStart;
+	Location dmCentre;
 
 	public SurvivalGames() {
 		Bukkit.getPluginManager().registerEvents(this, getPlugin());
@@ -235,7 +236,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			player.teleport(getConfig().getLocation("specspawn"));
 		}
 
-		Location dmCentre = getConfig().getLocation("dmcentre");
+		dmCentre = getConfig().getLocation("dmcentre");
 		int dmRadius = getConfig().getInt("dmborderradius", 25);
 		worlds().setWorldBorder(gameMap.getWorld(), dmCentre, dmRadius);
 
@@ -263,6 +264,10 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		stats().stopListening();
 		status = "endgame";
 		stats().renderTopList(stats().getCurrentPlayTimes(), 3, forceWinner);
+		if (forceWinner == null)
+			randomFireworks(dmCentre, 15);
+		else
+			randomFireworks(forceWinner, 15);
 		final Game game = this;
 		new BukkitRunnable() {
 			@Override

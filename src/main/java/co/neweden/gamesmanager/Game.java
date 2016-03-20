@@ -5,14 +5,14 @@ import java.util.*;
 import co.neweden.gamesmanager.game.*;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import co.neweden.gamesmanager.game.countdown.CMain;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.entity.Damageable;
-import org.bukkit.entity.Player;
+import org.bukkit.*;
+import org.bukkit.entity.*;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.spectate.Spectate;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class Game {
 	
@@ -74,7 +74,7 @@ public class Game {
 	
 	private Statistics statistics;
 	public Statistics stats() { return this.statistics; }
-	
+
 	public GMMain getPlugin() { return GamesManager.plugin; }
 	public String getName() { return gameName; }
 	public String getCurrentMapName() { return mapName; }
@@ -158,6 +158,10 @@ public class Game {
 			Util.playerSendTitle(player, title, subTitle, fadeIn, stay, fadeOut);
 		}
 	}
+
+	private Fireworks fireworks = new Fireworks(this);
+	public void randomFireworks(Location loc, Integer duration) { fireworks.randomFireworks(loc, null, duration); }
+	public void randomFireworks(Entity entity, Integer duration) { fireworks.randomFireworks(null, entity, duration); }
 
 	public void kickAllPlayers(String message) {
 		Set<Player> toKick = new HashSet<>();
