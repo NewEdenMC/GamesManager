@@ -1,12 +1,7 @@
 package co.neweden.gamesmanager.game;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,6 +14,8 @@ import co.neweden.gamesmanager.Game;
 import co.neweden.gamesmanager.event.GMPlayerJoinGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerLeaveGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerSpectatingEvent;
+
+import javax.swing.*;
 
 public class Statistics implements Listener {
 	
@@ -144,15 +141,17 @@ public class Statistics implements Listener {
 			return 0;
 		}
 	}
-	
-	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map) { return groupAndSort(map, true); }
-	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map, boolean reverseOrder) {
+
+	public enum SortOrder { ASCENDING, DESCENDING }
+	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map, SortOrder order, Player forceFirst) {
+		if (forceFirst != null) map.remove(forceFirst);
+
 		TreeMap<Long, ArrayList<Player>> groups;
-		if (reverseOrder)
+		if (order.equals(SortOrder.DESCENDING))
 			groups = new TreeMap<>(Collections.reverseOrder());
 		else
 			groups = new TreeMap<>();
-		
+
 		for (Entry<Player, Long> e : map.entrySet()) {
 			if (groups.containsKey(e.getValue()))
 				// If the players statistic value is in the Map, then just add them to the inner List
@@ -161,7 +160,16 @@ public class Statistics implements Listener {
 				// If the players statics value isn't in the Map, add the value and a new List with that player
 				groups.put(e.getValue(), new ArrayList<>(Collections.singletonList(e.getKey())));
 		}
-		
+
+		if (forceFirst != null) {
+			Long place;
+			if (order.equals(SortOrder.DESCENDING))
+				place = groups.firstKey() + 1;
+			else
+				place = groups.firstKey() - 1;
+			groups.put(place, new ArrayList<>(Collections.singletonList(forceFirst)));
+		}
+
 		return groups;
 	}
 	
@@ -178,18 +186,15 @@ public class Statistics implements Listener {
 		return place;
 	}
 	
-	public void renderTopList(HashMap<Player, Long> data, int numToList) { renderTopList(data, numToList, null); }
-	public void renderTopList(HashMap<Player, Long> data, int numToList, Player forceFirst) { renderTopList(data, numToList, false, forceFirst); }
-	public void renderTopList(HashMap<Player, Long> data, int numToList, boolean reverseOrder) { renderTopList(data, numToList, false, null); }
-	public void renderTopList(HashMap<Player, Long> data, int numToList, boolean reverseOrder, Player forceFirst) {
-		if (forceFirst != null) data.remove(forceFirst);
-		TreeMap<Long, ArrayList<Player>> groups = groupAndSort(data, reverseOrder);
-		if (forceFirst != null)
-			groups.put(groups.firstKey() + 1, new ArrayList<>(Collections.singletonList(forceFirst)));
-		
+	public void renderTopList(HashMap<Player, Long> data, int numToList) { renderTopList(data, numToList, SortOrder.DESCENDING); }
+	public void renderTopList(HashMap<Player, Long> data, int numToList, Player forceFirst) { renderTopList(data, numToList, SortOrder.DESCENDING, forceFirst); }
+	public void renderTopList(HashMap<Player, Long> data, int numToList, SortOrder order) { renderTopList(data, numToList, order, null); }
+	public void renderTopList(HashMap<Player, Long> data, int numToList, SortOrder order, Player forceFirst) {
+		Map<Long, ArrayList<Player>> groups = groupAndSort(data, order, forceFirst);
+
 		game.broadcast("&2&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580");
 		game.broadcast("");
-		game.broadcast("&bThe game has ended, the top three players are:");
+		game.broadcast(String.format("&bThe game has ended, the top %s players are:", numToList));
 		
 		int place = 1;
 		for (Entry<Long, ArrayList<Player>> group : groups.entrySet()) {
