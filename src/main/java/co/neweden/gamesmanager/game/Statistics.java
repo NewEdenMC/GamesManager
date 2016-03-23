@@ -32,7 +32,7 @@ public class Statistics implements Listener {
 	
 	public void startListening() {
 		for (Player player : game.getPlaying()) {
-			if (joinedAt.containsKey(player) == false)
+			if (!joinedAt.containsKey(player))
 				joinedAt.put(player, System.currentTimeMillis());
 		}
 		listen = true;
@@ -50,23 +50,23 @@ public class Statistics implements Listener {
 	
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onJoinGame(GMPlayerJoinGameEvent event) {
-		if (listen == false &&
-			game.getPlaying().contains(event.getPlayer()) == false) return;
-		joinedAt.put(event.getPlayer(), System.currentTimeMillis());
+		if (listen && game.getPlaying().contains(event.getPlayer())) {
+			joinedAt.put(event.getPlayer(), System.currentTimeMillis());
+		}
 	}
 	
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onLeaveGame(GMPlayerLeaveGameEvent event) {
-		if (listen == false &&
-			game.getPlaying().contains(event.getPlayer()) == false) return;
-		leftAt.put(event.getPlayer(), System.currentTimeMillis());
+		if (listen && game.getPlaying().contains(event.getPlayer())) {
+			leftAt.put(event.getPlayer(), System.currentTimeMillis());
+		}
 	}
 	
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onPlayerSpectating(GMPlayerSpectatingEvent event) {
-		if (listen == false &&
-			game.getPlaying().contains(event.getPlayer()) == false) return;
-		leftAt.put(event.getPlayer(), System.currentTimeMillis());
+		if (listen && game.getPlaying().contains(event.getPlayer())) {
+			leftAt.put(event.getPlayer(), System.currentTimeMillis());
+		}
 	}
 	
 	public Long getJoinTime(Player player) {
@@ -114,8 +114,7 @@ public class Statistics implements Listener {
 	
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onDeath(PlayerDeathEvent event) {
-		if (listen == false) return;
-		if (game.getPlaying().contains(event.getEntity()) == false) return;
+		if (!listen || !game.getPlaying().contains(event.getEntity())) return;
 		
 		if (kills.containsKey(event.getEntity().getKiller())) {
 			kills.put(event.getEntity().getKiller(), kills.get(event.getEntity().getKiller()) + 1);
@@ -149,10 +148,10 @@ public class Statistics implements Listener {
 	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map) { return groupAndSort(map, true); }
 	public TreeMap<Long, ArrayList<Player>> groupAndSort(Map<Player, Long> map, boolean reverseOrder) {
 		TreeMap<Long, ArrayList<Player>> groups;
-		if (reverseOrder == true)
-			groups = new TreeMap<Long, ArrayList<Player>>(Collections.reverseOrder());
+		if (reverseOrder)
+			groups = new TreeMap<>(Collections.reverseOrder());
 		else
-			groups = new TreeMap<Long, ArrayList<Player>>();
+			groups = new TreeMap<>();
 		
 		for (Entry<Player, Long> e : map.entrySet()) {
 			if (groups.containsKey(e.getValue()))
@@ -160,7 +159,7 @@ public class Statistics implements Listener {
 				groups.get(e.getValue()).add(e.getKey());
 			else
 				// If the players statics value isn't in the Map, add the value and a new List with that player
-				groups.put(e.getValue(), new ArrayList<Player>(Arrays.asList(e.getKey())));
+				groups.put(e.getValue(), new ArrayList<>(Collections.singletonList(e.getKey())));
 		}
 		
 		return groups;
@@ -169,7 +168,7 @@ public class Statistics implements Listener {
 	private String readablePlace(Integer num) {
 		if (num.equals(11) || num.equals(12) || num.equals(13))
 			return num + "th";
-		String place = num.toString();
+		String place;
 		switch (num % 10) {
 			case 1: place = "&e" + num + "st"; break;
 			case 2: place = "&6" + num + "nd"; break;
@@ -186,7 +185,7 @@ public class Statistics implements Listener {
 		if (forceFirst != null) data.remove(forceFirst);
 		TreeMap<Long, ArrayList<Player>> groups = groupAndSort(data, reverseOrder);
 		if (forceFirst != null)
-			groups.put(groups.firstKey() + 1, new ArrayList<Player>(Arrays.asList(forceFirst)));
+			groups.put(groups.firstKey() + 1, new ArrayList<>(Collections.singletonList(forceFirst)));
 		
 		game.broadcast("&2&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580");
 		game.broadcast("");
