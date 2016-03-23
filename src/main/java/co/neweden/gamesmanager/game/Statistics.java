@@ -180,9 +180,11 @@ public class Statistics implements Listener {
 	}
 	
 	public void renderTopList(HashMap<Player, Long> data, int numToList) { renderTopList(data, numToList, null); }
-	public void renderTopList(HashMap<Player, Long> data, int numToList, Player forceFirst) {
+	public void renderTopList(HashMap<Player, Long> data, int numToList, Player forceFirst) { renderTopList(data, numToList, false, forceFirst); }
+	public void renderTopList(HashMap<Player, Long> data, int numToList, boolean reverseOrder) { renderTopList(data, numToList, false, null); }
+	public void renderTopList(HashMap<Player, Long> data, int numToList, boolean reverseOrder, Player forceFirst) {
 		if (forceFirst != null) data.remove(forceFirst);
-		TreeMap<Long, ArrayList<Player>> groups = groupAndSort(data);
+		TreeMap<Long, ArrayList<Player>> groups = groupAndSort(data, reverseOrder);
 		if (forceFirst != null)
 			groups.put(groups.firstKey() + 1, new ArrayList<Player>(Arrays.asList(forceFirst)));
 		
