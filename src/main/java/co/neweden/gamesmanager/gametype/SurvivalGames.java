@@ -165,6 +165,9 @@ public class SurvivalGames extends Game implements GameType, Listener {
 
 		gameMap = worlds().loadMap(getConfig().getString("gameMap"));
 		worlds().setCurrentMap(gameMap);
+
+		dmCentre = getConfig().getLocation("dmcentre");
+
 		List<Location> spawnsList = getConfig().getLocationList("gamespawns", null, true);
 		Location[] spawns = spawnsList.toArray(new Location[spawnsList.size()]);
 		Player[] players = getPlaying().toArray(new Player[getPlaying().size()]);
@@ -236,7 +239,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			player.teleport(getConfig().getLocation("specspawn"));
 		}
 
-		dmCentre = getConfig().getLocation("dmcentre");
 		int dmRadius = getConfig().getInt("dmborderradius", 25);
 		worlds().setWorldBorder(gameMap.getWorld(), dmCentre, dmRadius);
 
