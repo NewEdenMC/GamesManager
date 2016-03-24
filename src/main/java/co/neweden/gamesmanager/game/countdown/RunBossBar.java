@@ -24,6 +24,7 @@ public class RunBossBar implements Listener {
     protected RunBossBar(Countdown countdown, BossBar bar, Integer time) {
         main = countdown;
         bossBar = bar; this.time = time;
+        bossBar.setVisible(false);
         Bukkit.getPluginManager().registerEvents(this, countdown.game.getPlugin());
     }
 
@@ -52,7 +53,7 @@ public class RunBossBar implements Listener {
             public void run() {
                 bossBar.setProgress((double) countdown / (double) time);
                 if (countdown == 0) {
-                    bossBar.removeAll();
+                    bossBar.setVisible(false);
                     this.cancel();
                 } else
                     countdown--;
