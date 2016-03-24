@@ -3,6 +3,7 @@ package co.neweden.gamesmanager.gametype;
 import java.util.List;
 
 import co.neweden.gamesmanager.game.GMMap;
+import co.neweden.gamesmanager.game.Lobby;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import co.neweden.gamesmanager.game.countdown.Countdown;
 import org.bukkit.Bukkit;
@@ -32,23 +33,14 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	
 	String status;
 	GMMap gameMap;
-	Location lobbySpawn;
-	Integer minPlayersNeeded;
-	Integer lobbyCountdownToStart;
 	Location dmCentre;
+	private Lobby lobby;
 
 	public SurvivalGames() {
 		Bukkit.getPluginManager().registerEvents(this, getPlugin());
 	}
 
 	public void start() {
-		String lobbyWorld = getConfig().getString("lobbyworld");
-		worlds().setCurrentMap(worlds().loadMap(lobbyWorld));
-
-		lobbySpawn = getConfig().getLocation("lobbyspawn");
-		minPlayersNeeded = getConfig().getInt("minPlayersNeeded", 3);
-		lobbyCountdownToStart = getConfig().getInt("lobbyCountdownToStart", 60);
-
 		reservedSlots().enable();
 		spectate().playersSpectateOnDeath(true);
 		setPVP(false);
@@ -56,7 +48,8 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			.setConfigPath("allowedBlocks")
 			.filterType(FilterType.WHITELIST)
 			.startListening();
-		preLobby();
+		status = "lobby";
+		lobby = new Lobby(this);
 	}
 	
 	public void onCommand(CommandSender sender, String[] args) {
@@ -79,23 +72,11 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler (priority = EventPriority.MONITOR)
 	public void onJoin(GMPlayerJoinGameEvent event) {
-		if (!getPlayers().contains(event.getPlayer())) return;
-		switch (status) {
-			case "prelobby":
-				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Survival Games, type &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
-				event.getPlayer().teleport(lobbySpawn);
-				if (getPlayers().size() >= minPlayersNeeded) {
-					lobby();
-				} else {
-					event.getPlayer().sendMessage(Util.formatString(String.format("&eThe game is currently in pre-lobby, %s players minimum needed to start.", minPlayersNeeded)));
-				}
-				break;
-			case "lobby":
-				Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Survival Games, &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
-				event.getPlayer().teleport(lobbySpawn);
-				break;
+		if (event.isCancelled() || !getPlayers().contains(event.getPlayer())) return;
+		if (status.equals("lobby")) {
+			Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined Survival Games, type &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
 		}
 		resetDataForPlayer(event.getPlayer());
 		event.getPlayer().sendMessage(Util.formatString("&bWelcome to Survival Games, current players " + getPlaying().size()));
@@ -103,12 +84,8 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(GMPlayerLeaveGameEvent event) {
-		if (!getPlayers().contains(event.getPlayer())) return;
+		if (event.isCancelled() || !getPlayers().contains(event.getPlayer())) return;
 		int playing = getPlaying().size() - 1;
-		
-		if (status.equals("lobby")) {
-			if (playing <= minPlayersNeeded) preLobby();
-		}
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			if (playing <= 1) { endGame(); return; }
 			if (status.equals("inprogress")) {
@@ -130,41 +107,17 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			}
 		}
 	}
-	
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onRespawn(PlayerRespawnEvent event) {
-		if (!getPlayers().contains(event.getPlayer())) return;
-		if (status.equals("prelobby") || status.equals("lobby"))
-			event.setRespawnLocation(lobbySpawn);
+
+	public void postLobby(GMMap map) {
+		gameMap = map;
+		preIP();
 	}
-	
-	private void preLobby() {
-		spectate().disableSpectateMode();
-		countdown().stopAll();
-		status = "prelobby";
-		countdown().newCountdown(30, 0, -1)
-				.at(0).broadcastMessage(String.format("&bWaiting on players, minimum of %s required to start.", getConfig().getInt("minPlayersNeeded", 3)))
-				.start();
-	}
-	
-	private void lobby() {
-		status = "lobby";
-		countdown().stopAll();
-		broadcast("&eMinimum players reached, game will start in 1 minute"); // TODO: Add more output
-		countdown().newCountdown()
-			.at(lobbyCountdownToStart).displayBossBar(Bukkit.createBossBar(Util.formatString("&e&lGame starting soon, get ready!"), BarColor.PURPLE, BarStyle.SOLID))
-			.at(0).callMethod(this, "preIP")
-			.start();
-	}
-	
+
 	public void preIP() {
 		status = "inprogress";
 		spectate().enableSpectateMode();
 		freezePlayers().enable();
 		reservedSlots().onlyKickSpectators(true);
-
-		gameMap = worlds().loadMap(getConfig().getString("gameMap"));
-		worlds().setCurrentMap(gameMap);
 
 		dmCentre = getConfig().getLocation("dmcentre");
 
