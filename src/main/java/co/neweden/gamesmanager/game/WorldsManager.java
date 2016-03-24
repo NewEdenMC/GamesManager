@@ -117,19 +117,9 @@ public class WorldsManager implements Listener {
 		return true;
 	}
 
-	public void setCurrentMap(GMMap map) { setCurrentMap(map, null); }
-	public void setCurrentMap(GMMap map, Map<String, List<Player>> spawnMap) {
+	public void setCurrentMap(GMMap map) {
 		game.getConfig().switchMap(map.getBaseWorldName());
 		currentMap = map;
-
-		/*if (spawnMap == null) return;
-		for (java.util.Map.Entry<String, List<Player>> spawn : spawnMap.entrySet()) {
-			Location loc = Parser.parseLocation(spawn.getKey(), true, map.getWorld());
-			loc.setWorld(map.getWorld());
-			for (Player player : spawn.getValue()) {
-				player.teleport(loc);
-			}
-		}*/
 	}
 
 	private HashMap<String, WBSquare> wbSquares = new HashMap<String, WBSquare>();
