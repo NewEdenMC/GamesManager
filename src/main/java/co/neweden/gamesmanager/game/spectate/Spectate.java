@@ -133,6 +133,7 @@ public class Spectate implements Listener {
 		spectators.add(player);
 		player.setAllowFlight(true);
 		player.setFlying(true);
+		player.spigot().setCollidesWithEntities(false);
 		hidePlayerFromGame(player);
 		final Location loc = player.getLocation();
 		loc.setY(loc.getY() + 4);
@@ -153,6 +154,7 @@ public class Spectate implements Listener {
 		spectators.remove(player);
 		player.setFlying(false);
 		player.setAllowFlight(false);
+		player.spigot().setCollidesWithEntities(true);
 		showPlayerToGame(player);
 	}
 	
