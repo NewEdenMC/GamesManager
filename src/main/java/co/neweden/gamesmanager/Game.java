@@ -104,15 +104,18 @@ public class Game {
 		}
 		pvp.clear();
 	}
-	
-	public void resetDataForPlayers() {
+
+	public void resetDataForPlayers() { resetDataForPlayers(GameMode.SURVIVAL); }
+	public void resetDataForPlayers(GameMode gm) {
 		for (Player player : getPlayers()) {
-			resetDataForPlayer(player);
+			resetDataForPlayer(player, gm);
 		}
 	}
-	
-	public void resetDataForPlayer(Player player) {
+
+	public void resetDataForPlayer(Player player) { resetDataForPlayer(player, GameMode.SURVIVAL); }
+	public void resetDataForPlayer(Player player, GameMode gm) {
 		if (!getPlayers().contains(player)) return;
+		player.setGameMode(GameMode.SURVIVAL);
 		player.getInventory().clear();
 		player.getInventory().setHelmet(null);
 		player.getInventory().setChestplate(null);
