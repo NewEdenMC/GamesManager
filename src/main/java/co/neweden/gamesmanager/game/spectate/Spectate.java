@@ -63,13 +63,14 @@ public class Spectate implements Listener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onJoinGame(GMPlayerJoinGameEvent event) {
 		if (!event.isCancelled() &&
 			event.getGame().equals(game) &&
 			enableSpec &&
 			playersCanSpectate())
 		{
+			event.getPlayer().teleport(game.getConfig().getLocation("specspawn"));
 			refreshHiddenPlayers();
 			activateSpectate(event.getPlayer());
 		}

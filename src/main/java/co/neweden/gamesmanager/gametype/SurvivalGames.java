@@ -72,7 +72,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		}
 	}
 	
-	@EventHandler (priority = EventPriority.MONITOR)
+	@EventHandler
 	public void onJoin(GMPlayerJoinGameEvent event) {
 		if (event.isCancelled() || !getPlayers().contains(event.getPlayer())) return;
 		if (status.equals("lobby")) {

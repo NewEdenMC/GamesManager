@@ -54,7 +54,8 @@ public class Lobby implements Listener {
 
     @EventHandler
     public void onJoin(GMPlayerJoinGameEvent event) {
-        if (event.isCancelled() || !game.getPlayers().contains(event.getPlayer())) return;
+        if (event.isCancelled() || !game.getPlayers().contains(event.getPlayer()) ||
+                state.equals(LobbyState.STOP)) return;
         event.getPlayer().teleport(lobbySpawn);
         game.resetDataForPlayer(event.getPlayer());
         if (state.equals(LobbyState.PRE)) {
@@ -70,14 +71,13 @@ public class Lobby implements Listener {
         if (event.isCancelled() || !game.getPlayers().contains(event.getPlayer())) return;
         int playing = game.getPlaying().size() - 1;
         if (state.equals(LobbyState.INPROGRESS))
-            if (playing <= minPlayersNeeded) pre();
+            if (playing < minPlayersNeeded) pre();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onRespawn(PlayerRespawnEvent event) {
-        if (!game.getPlayers().contains(event.getPlayer())) return;
-        if (state.equals(LobbyState.PRE) || state.equals(LobbyState.INPROGRESS))
-            event.setRespawnLocation(lobbySpawn);
+        if (!game.getPlayers().contains(event.getPlayer()) || !state.equals(LobbyState.STOP)) return;
+        event.setRespawnLocation(lobbySpawn);
     }
 
     private void pre() {
