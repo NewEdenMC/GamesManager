@@ -5,6 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CommandManager implements CommandExecutor {
@@ -16,18 +17,19 @@ public class CommandManager implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
+        ArrayList<String> passArgs = new ArrayList<>(Arrays.asList(args));
         switch (command.getName().toLowerCase()) {
             case "gamesmanager" :
-                return gamesManagerCommand(sender, command, args);
+                return gamesManagerCommand(sender, command, passArgs);
             case "join" :
-                return joinCommand(sender, args);
+                return joinCommand(sender, passArgs);
         }
 
         return false;
     }
 
-    private boolean gamesManagerCommand(CommandSender sender, Command command, String[] args) {
-        if (args.length == 0) {
+    private boolean gamesManagerCommand(CommandSender sender, Command command, ArrayList<String> args) {
+        if (args.size() == 0) {
             // Return version info if no sub-command
             if (sender.hasPermission("gamesmanager.version"))
                 sender.sendMessage(String.format(Util.formatString("&b%s &aversion %s&b"), plugin.getName(), plugin.getDescription().getVersion()));
@@ -39,12 +41,17 @@ public class CommandManager implements CommandExecutor {
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("join"))
-            return joinCommand(sender, Arrays.copyOfRange(args, 1, args.length - 1));
+        String subCommand = args.get(0);
+        args.remove(0);
+        if (subCommand.equalsIgnoreCase("join"))
+            return joinCommand(sender, args);
 
-        Game game = GamesManager.getGameByName(args[0]);
+        if (subCommand.equalsIgnoreCase("vote"))
+            return voteCommand(sender, args);
+
+        Game game = GamesManager.getGameByName(args.get(0));
         if (game == null) {
-            sender.sendMessage(String.format(Util.formatString("&cThe game %s either does not exist or is disabled."), args[0]));
+            sender.sendMessage(String.format(Util.formatString("&cThe game %s either does not exist or is disabled."), args.get(0)));
             return true;
         }
 
@@ -55,14 +62,14 @@ public class CommandManager implements CommandExecutor {
             }
         }
 
-        String[] gArgs = Arrays.copyOfRange(args, 1, args.length);
         // TODO: doesn't work with new structure
+        //String[] gArgs = Arrays.copyOfRange(args, 1, args.length);
         //game.getGame().onCommand(sender, gArgs);
 
         return true;
     }
 
-    private boolean joinCommand(CommandSender sender, String[] args) {
+    private boolean joinCommand(CommandSender sender, ArrayList<String> args) {
         if (!sender.hasPermission("gamesmanager.join")) {
             sender.sendMessage(Util.formatString("&cYou do not have permission to join a game."));
             return true;
@@ -70,18 +77,39 @@ public class CommandManager implements CommandExecutor {
         if (!(sender instanceof Player)) {
             sender.sendMessage(Util.formatString("&cOnly players can run this command."));
         }
-        if (args.length == 0) {
+        if (args.size() == 0) {
             sender.sendMessage(Util.formatString("&ejoin <game-name>&b: you did not provide the name of the game you want to join."));
             return true;
         }
 
-        Game game = GamesManager.getGameByName(args[0]);
+        Game game = GamesManager.getGameByName(args.get(0));
         if (game == null) {
-            sender.sendMessage(String.format(Util.formatString("&cThe game %s either does not exist or is disabled."), args[0]));
+            sender.sendMessage(String.format(Util.formatString("&cThe game %s either does not exist or is disabled."), args.get(0)));
             return true;
         }
 
         GamesManager.joinPlayerToGame((Player) sender, game);
+
+        return true;
+    }
+
+    private boolean voteCommand(CommandSender sender, ArrayList<String> args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(Util.formatString("&cOnly players can run this command."));
+        }
+        if (args.size() == 0) {
+            sender.sendMessage(Util.formatString("&evote <map-name>&b: you did not provide the name of the map you want to vote for."));
+            return true;
+        }
+
+        Player player = (Player) sender;
+        Game game = GamesManager.getGameByWorld(player.getWorld());
+        if (game == null) {
+            sender.sendMessage(Util.formatString("&cYou are not currently in a game."));
+            return true;
+        }
+
+        game.lobby().voteCommand(player, args.get(0));
 
         return true;
     }
