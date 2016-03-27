@@ -29,6 +29,7 @@ public class Game {
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
 		statistics = new Statistics(this);
+		lobby = new Lobby(this);
 		Event event = new Event(getPlugin());
 	}
 
@@ -71,6 +72,9 @@ public class Game {
 	
 	private WorldsManager worldsManager;
 	public WorldsManager worlds() { return this.worldsManager; }
+
+	private Lobby lobby;
+	public Lobby lobby() { return lobby; }
 	
 	private Statistics statistics;
 	public Statistics stats() { return this.statistics; }

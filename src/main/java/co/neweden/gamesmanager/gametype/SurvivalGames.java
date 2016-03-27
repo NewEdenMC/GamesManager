@@ -34,7 +34,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	String status;
 	GMMap gameMap;
 	Location dmCentre;
-	private Lobby lobby;
 
 	public SurvivalGames() {
 		Bukkit.getPluginManager().registerEvents(this, getPlugin());
@@ -49,7 +48,6 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			.filterType(FilterType.WHITELIST)
 			.startListening();
 		status = "lobby";
-		lobby = new Lobby(this);
 	}
 	
 	public void onCommand(CommandSender sender, String[] args) {
