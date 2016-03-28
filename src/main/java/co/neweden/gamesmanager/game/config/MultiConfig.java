@@ -26,13 +26,13 @@ public class MultiConfig extends TypeWrappers {
     private File gtConfigFile;
     private YamlConfiguration mConfig = new YamlConfiguration();
     private File mConfigFile;
-    public enum Config { MAP, GAMETYPE }
+    public enum Type { MAP, GAMETYPE }
 
     public MultiConfig(Game game) {
         this.game = game;
 
         mkdir("gameTypeConfigs");
-        loadConfigFile(Config.GAMETYPE, "gameTypeConfigs", game.getTypeName() + ".yml");
+        loadConfigFile(Type.GAMETYPE, "gameTypeConfigs", game.getTypeName() + ".yml");
 
         mkdir("mapConfigs");
         String mapConfigPath = "gameTypeConfigs";
@@ -41,7 +41,7 @@ public class MultiConfig extends TypeWrappers {
             mapConfigPath = "mapConfigs";
             mapConfigName = game.worlds().getCurrentMap().getBaseWorldName() + ".yml";
         }
-        loadConfigFile(Config.MAP, mapConfigPath, mapConfigName);
+        loadConfigFile(Type.MAP, mapConfigPath, mapConfigName);
     }
 
     private void mkdir(String folderName) {
@@ -55,15 +55,15 @@ public class MultiConfig extends TypeWrappers {
     }
 
     public void switchMap(String mapName) {
-        loadConfigFile(Config.MAP, "mapConfigs", mapName + ".yml");
+        loadConfigFile(Type.MAP, "mapConfigs", mapName + ".yml");
     }
 
-    public void loadConfigFile(Config config, String prefixPath, String fileName) {
+    public void loadConfigFile(Type configType, String prefixPath, String fileName) {
         String path = game.getPlugin().getDataFolder() + File.separator + prefixPath;
         game.getPlugin().getLogger().info(String.format("[%s] Loading config %s", game.getName(), path + File.separator + fileName));
 
         try {
-            switch (config) {
+            switch (configType) {
                 case MAP: mConfigFile = new File(path, fileName);
                     mConfig.load(mConfigFile);
                     break;
@@ -88,10 +88,10 @@ public class MultiConfig extends TypeWrappers {
         return mConfig.get(path, gtConfig.get(path, def));
     }
 
-    public void set(String path, Object value, Config config) {
-        if (config == Config.MAP) {
+    public void set(String path, Object value, Type configType) {
+        if (configType == Type.MAP) {
             mConfig.set(path, value);
-        } else if (config == Config.GAMETYPE) {
+        } else if (configType == Type.GAMETYPE) {
             gtConfig.set(path, value);
         }
     }
@@ -107,9 +107,9 @@ public class MultiConfig extends TypeWrappers {
     }
 
     public void saveConfig() { saveConfig(null); }
-    public void saveConfig(Config config) {
+    public void saveConfig(Type configType) {
         try {
-            if (config == null || config.equals(Config.MAP))
+            if (configType == null || configType.equals(Type.MAP))
                 mConfig.save(mConfigFile);
         } catch (IllegalArgumentException ex) {
             game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), game.getCurrentMapName()));
@@ -118,7 +118,7 @@ public class MultiConfig extends TypeWrappers {
         }
 
         try {
-            if (config == null || config.equals(Config.GAMETYPE))
+            if (configType == null || configType.equals(Type.GAMETYPE))
                 gtConfig.save(gtConfigFile);
         } catch (IllegalArgumentException ex) {
             game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), game.getTypeName()));

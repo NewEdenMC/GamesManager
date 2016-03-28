@@ -3,9 +3,7 @@ package co.neweden.gamesmanager.gametype;
 import java.util.List;
 
 import co.neweden.gamesmanager.game.GMMap;
-import co.neweden.gamesmanager.game.Lobby;
 import co.neweden.gamesmanager.game.config.MultiConfig;
-import co.neweden.gamesmanager.game.countdown.Countdown;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
@@ -16,7 +14,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import co.neweden.gamesmanager.Game;
@@ -64,7 +61,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 			}
 			List<String> locations = getConfig().getStringList(getMapConfigPath() + ".gamespawns");
 			locations.add(player.getLocation().getWorld().getName() + " " + (int) player.getLocation().getX() + " " + (int) player.getLocation().getY() + " " + (int) player.getLocation().getZ());
-			getConfig().set(getMapConfigPath() + ".gamespawns", locations, MultiConfig.Config.MAP);
+			getConfig().set(getMapConfigPath() + ".gamespawns", locations, MultiConfig.Type.MAP);
 			getConfig().saveConfig();
 			sender.sendMessage(Util.formatString("&6Game spawn location added"));
 		}
