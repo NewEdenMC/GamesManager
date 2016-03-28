@@ -5,20 +5,21 @@ import co.neweden.gamesmanager.GamesManager;
 import co.neweden.gamesmanager.Util;
 import co.neweden.gamesmanager.event.GMPlayerJoinGameEvent;
 import co.neweden.gamesmanager.event.GMPlayerLeaveGameEvent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import co.neweden.gamesmanager.game.config.MultiConfig;
+import net.md_5.bungee.api.chat.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.util.ChatPaginator;
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Lobby implements Listener {
@@ -29,6 +30,7 @@ public class Lobby implements Listener {
     public Integer minPlayersNeeded;
     public Integer lobbyCountdownToStart;
     public List<String> availableMaps = new ArrayList<>();
+    private ArrayList<BaseComponent> componentMapsList = new ArrayList<>();
     private Map<Player, String> votes = new HashMap<>();
     private Boolean votingActive = false;
     private String selectedMap;
@@ -110,12 +112,35 @@ public class Lobby implements Listener {
                 .start();
     }
 
+    private void buildVotingList() {
+        for (String map : availableMaps) {
+            try {
+                YamlConfiguration mapConfig = game.getConfig().getIndividualConfig(MultiConfig.Type.MAP, map + ".yml");
+                String displayName = mapConfig.getString("displayName", map);
+                String description = mapConfig.getString("description", null);
+
+                TextComponent line = new TextComponent(Util.formatString("&f- &b" + displayName));
+                line.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gamesmanager vote " + map));
+
+                ComponentBuilder hover = new ComponentBuilder(Util.formatString("&eClick to vote for &e" + displayName));
+                if (description != null)
+                    hover.append(Util.formatString("\n&eDescription:\n" + Util.addLineBreaks(description, (ChatPaginator.AVERAGE_CHAT_PAGE_WIDTH / 3) * 2)));
+
+                line.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()));
+                componentMapsList.add(line);
+            } catch (FileNotFoundException ex) {
+                game.getPlugin().getLogger().warning(String.format("[%s] Config file for map %s not found, this map will not be available for voting", game.getName(), map));
+            }
+        }
+    }
+
     public void mapVoting() {
         if (availableMaps == null || availableMaps.size() == 0) return;
         selectedMap = availableMaps.get(0);
         if (availableMaps.size() > 1) {
+            buildVotingList();
+            votingActive = true;
             for (Player player : game.getPlayers()) {
-                votingActive = true;
                 sendVotingMessage(player);
             }
         }
@@ -124,12 +149,8 @@ public class Lobby implements Listener {
     private void sendVotingMessage(Player player) {
         player.sendMessage(Util.formatString("&eVoting for maps is now active!"));
         player.sendMessage(Util.formatString("&bTo vote for a map click on its name in the list below, to change your vote just click again."));
-        for (String map : availableMaps) {
-            TextComponent text = new TextComponent(Util.formatString("&f- "));
-            text.addExtra(Util.formatString("&b") + map);
-            text.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gamesmanager vote " + map));
-            text.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Util.formatString("&eClick to vote for &e" + map)).create()));
-            player.spigot().sendMessage(text);
+        for (BaseComponent component : componentMapsList) {
+            player.spigot().sendMessage(component);
         }
     }
 
