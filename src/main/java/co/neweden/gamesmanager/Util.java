@@ -41,5 +41,18 @@ public final class Util {
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s title {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', title)));
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), String.format("title %s subtitle {\"text\":\"%s\"}", player.getName(), ChatColor.translateAlternateColorCodes('&', subTitle)));
 	}
+
+	public static String addLineBreaks(String input, int maxLineLength) {
+		String[] parts = input.split(" ");
+		int lineLen = 0;
+		for (int i = 0; i < parts.length; i++) {
+			if (lineLen + parts[i].length() > maxLineLength) {
+				parts[i] = parts[i] + "\n";
+				lineLen = 0;
+			}
+			lineLen += parts[i].length();
+		}
+		return String.join(" ", parts);
+	}
 	
 }
