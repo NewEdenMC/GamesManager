@@ -16,7 +16,9 @@ public class GamesManager {
 	protected static Event event;
 	
 	private GamesManager() { }
-	
+
+	public static GMMain getPlugin() { return plugin; }
+
 	public static Set<Game> getAllGames() { return getGames(false); }
 	public static Set<Game> getEnabledGames() { return getGames(true); }
 	
