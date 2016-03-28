@@ -22,30 +22,36 @@ import co.neweden.gamesmanager.Util;
 
 public class MultiConfig extends TypeWrappers {
 
+    private String dataFolderPath = "";
+    private String gtFolder = "gameTypeConfigs";
+    private String gtFile = "";
     private YamlConfiguration gtConfig = new YamlConfiguration();
-    private File gtConfigFile;
+    //private File gtConfigFile;
+    private String mapFolder = "mapConfigs";
+    private String mapFile = "";
     private YamlConfiguration mConfig = new YamlConfiguration();
-    private File mConfigFile;
+    //private File mConfigFile;
     public enum Type { MAP, GAMETYPE }
 
     public MultiConfig(Game game) {
         this.game = game;
+        dataFolderPath = game.getPlugin().getDataFolder() + File.separator;
 
-        mkdir("gameTypeConfigs");
-        loadConfigFile(Type.GAMETYPE, "gameTypeConfigs", game.getTypeName() + ".yml");
+        mkdir(gtFolder);
+        loadConfigFile(Type.GAMETYPE, gtFolder, game.getTypeName() + ".yml");
 
-        mkdir("mapConfigs");
-        String mapConfigPath = "gameTypeConfigs";
+        mkdir(mapFolder);
+        String mapConfigPath = gtFolder;
         String mapConfigName = game.getTypeName() + ".yml";
         if (game.worlds().getCurrentMap() != null) {
-            mapConfigPath = "mapConfigs";
+            mapConfigPath = mapFolder;
             mapConfigName = game.worlds().getCurrentMap().getBaseWorldName() + ".yml";
         }
         loadConfigFile(Type.MAP, mapConfigPath, mapConfigName);
     }
 
     private void mkdir(String folderName) {
-        Path path = Paths.get(game.getPlugin().getDataFolder().getPath() + File.separator + folderName);
+        Path path = Paths.get(dataFolderPath + folderName);
         try {
             Files.createDirectory(path);
         } catch (FileAlreadyExistsException e) {
@@ -55,29 +61,49 @@ public class MultiConfig extends TypeWrappers {
     }
 
     public void switchMap(String mapName) {
-        loadConfigFile(Type.MAP, "mapConfigs", mapName + ".yml");
+        loadConfigFile(Type.MAP, mapFolder, mapName + ".yml");
     }
 
-    public void loadConfigFile(Type configType, String prefixPath, String fileName) {
-        String path = game.getPlugin().getDataFolder() + File.separator + prefixPath;
+    private void loadConfigFile(Type configType, String prefixPath, String fileName) {
+        String path = dataFolderPath + prefixPath;
         game.getPlugin().getLogger().info(String.format("[%s] Loading config %s", game.getName(), path + File.separator + fileName));
 
         try {
             switch (configType) {
-                case MAP: mConfigFile = new File(path, fileName);
-                    mConfig.load(mConfigFile);
+                case MAP: mConfig = getIndividualConfig(configType, fileName);
+                    mapFile = fileName;
                     break;
-                case GAMETYPE: gtConfigFile = new File(path, fileName);
-                    gtConfig.load(gtConfigFile);
+                case GAMETYPE: gtConfig = getIndividualConfig(configType, fileName);
+                    gtFile = fileName;
                     break;
             }
         } catch (FileNotFoundException ex) {
             game.getPlugin().getLogger().warning(String.format("[%s] Config file %s not found, skipping", game.getName(), path + File.separator + fileName));
+        }
+    }
+
+    public YamlConfiguration getIndividualConfig(Type configType, String fileName) throws FileNotFoundException {
+        YamlConfiguration config = new YamlConfiguration();
+        String path = dataFolderPath;
+        try {
+            switch (configType) {
+                case MAP:
+                    path = path + mapFolder;
+                    config.load(new File(path, fileName));
+                    break;
+                case GAMETYPE:
+                    path = path + gtFolder;
+                    config.load(new File(path, fileName));
+                    break;
+            }
+        } catch (FileNotFoundException ex) {
+            throw ex;
         } catch (IOException ex) {
             game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Cannot load configuration file %s: IOException", game.getName(), path + File.separator + fileName), ex);
         } catch (InvalidConfigurationException ex) {
             game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Cannot load configuration file %s: InvalidConfigurationException", game.getName(), path + File.separator + fileName), ex);
         }
+        return config;
     }
 
     @Override
@@ -110,20 +136,20 @@ public class MultiConfig extends TypeWrappers {
     public void saveConfig(Type configType) {
         try {
             if (configType == null || configType.equals(Type.MAP))
-                mConfig.save(mConfigFile);
+                mConfig.save(new File(dataFolderPath + mapFolder, mapFile));
         } catch (IllegalArgumentException ex) {
-            game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), game.getCurrentMapName()));
+            game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), mapFile));
         } catch (IOException ex) {
-            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Could not save config %s to %s", game.getName(), mConfigFile.getName(), mConfigFile.getPath()), ex);
+            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Could not save config %s to %s", game.getName(), mapFile, mapFolder), ex);
         }
 
         try {
             if (configType == null || configType.equals(Type.GAMETYPE))
-                gtConfig.save(gtConfigFile);
+                gtConfig.save(new File(dataFolderPath + gtFolder, gtFile));
         } catch (IllegalArgumentException ex) {
-            game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), game.getTypeName()));
+            game.getPlugin().getLogger().warning(String.format("[%s] Tried to save Map Config for map %s but no file object was given.", game.getName(), gtFile));
         } catch (IOException ex) {
-            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Could not save config %s to %s", game.getName(), mConfigFile.getName(), mConfigFile.getPath()), ex);
+            game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] Could not save config %s to %s", game.getName(), gtFile, gtFolder), ex);
         }
     }
 
