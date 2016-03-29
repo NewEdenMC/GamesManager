@@ -20,6 +20,7 @@ public class Game {
 	protected GameType gameType;
 	protected String gameTypeName;
 	private Set<Player> players = new HashSet<>();
+	@Deprecated
 	private String mapName = "default";
 	
 	protected void construct() {
@@ -81,9 +82,11 @@ public class Game {
 
 	public GMMain getPlugin() { return GamesManager.plugin; }
 	public String getName() { return gameName; }
+	@Deprecated
 	public String getCurrentMapName() { return mapName; }
 	public String getTypeName() { return gameTypeName; }
 	public Boolean isEnabled() { return getConfig().getBoolean("enabled", false);}
+	@Deprecated
 	public String getMapConfigPath() { return "maps." + mapName; }
 	public Integer getMinPlayerCount() { return getConfig().getInt("minplayers", 0); }
 	public Integer getMaxPlayerCount() { return getConfig().getInt("maxplayers", 0); }
