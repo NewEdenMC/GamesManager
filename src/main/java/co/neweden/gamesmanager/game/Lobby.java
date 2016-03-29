@@ -18,6 +18,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.util.ChatPaginator;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -31,6 +32,7 @@ public class Lobby implements Listener {
     public Integer lobbyCountdownToStart;
     public List<String> availableMaps = new ArrayList<>();
     private ArrayList<BaseComponent> componentMapsList = new ArrayList<>();
+    private Map<String, YamlConfiguration> mapConfigs = new HashMap<>();
     private Map<Player, String> votes = new HashMap<>();
     private Boolean votingActive = false;
     private String selectedMap;
@@ -116,6 +118,7 @@ public class Lobby implements Listener {
         for (String map : availableMaps) {
             try {
                 YamlConfiguration mapConfig = game.getConfig().getIndividualConfig(MultiConfig.Type.MAP, map + ".yml");
+                mapConfigs.put(map, mapConfig);
                 String displayName = mapConfig.getString("displayName", map);
                 String description = mapConfig.getString("description", null);
 
@@ -161,7 +164,7 @@ public class Lobby implements Listener {
         }
         if (availableMaps.contains(mapName)) {
             votes.put(player, mapName);
-            game.broadcast(String.format("&c%s&7 voted for &c%s", player.getDisplayName(), mapName));
+            game.broadcast(String.format("&c%s&7 voted for &c%s", player.getDisplayName(), mapConfigs.get(mapName).getString("displayName", mapName)));
         } else {
             player.sendMessage(String.format(Util.formatString("&cThe map %s is not available to vote for."), mapName));
         }
