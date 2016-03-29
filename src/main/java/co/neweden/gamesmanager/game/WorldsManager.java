@@ -28,7 +28,8 @@ public class WorldsManager implements Listener {
 	private Game game;
 	private Set<GMMap> maps;
 	private GMMap currentMap;
-	
+	protected Boolean gamePvP = null;
+
 	public WorldsManager(Game game) {
 		maps = new HashSet<>();
 		this.game = game;
@@ -75,6 +76,7 @@ public class WorldsManager implements Listener {
 		}
 		nWorld.setAutoSave(false);
 		nWorld.setGameRuleValue("doMobSpawning", "false");
+		if (gamePvP != null) nWorld.setPVP(gamePvP);
 		GMMap map = new GMMap(nWorld, worldName);
 		maps.add(map);
 		return map;
@@ -194,6 +196,13 @@ public class WorldsManager implements Listener {
 			else
 				event.getPlayer().teleport(wbMovePlayer(event.getPlayer().getLocation()));
 			event.getPlayer().sendMessage(Util.formatString("&cYou are not allowed to pass beond this point."));
+		}
+	}
+
+	public void setPvP(boolean pvp) {
+		gamePvP = pvp;
+		for (GMMap map : getMaps()) {
+			map.getWorld().setPVP(pvp);
 		}
 	}
 	

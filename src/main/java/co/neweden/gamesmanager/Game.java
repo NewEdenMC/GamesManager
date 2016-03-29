@@ -40,7 +40,6 @@ public class Game {
 		kickAllPlayers("The game has ended and is now resetting");
 		countdown().removeAll();
 		spectate.disableSpectateMode();
-		resetPVP();
 		worlds().unloadMaps();
 	}
 
@@ -93,9 +92,11 @@ public class Game {
 
 	private CMain cMain = new CMain(this);
 	public CMain countdown() { return cMain; }
-	
+
+	@Deprecated
 	private HashMap<GMMap, Boolean> pvp = new HashMap<>();
-	
+
+	@Deprecated
 	public void setPVP(boolean enable) {
 		for (GMMap map : worlds().getMaps()) {
 			if (!pvp.containsKey(map))
@@ -103,7 +104,8 @@ public class Game {
 			map.getWorld().setPVP(enable);
 		}
 	}
-	
+
+	@Deprecated
 	public void resetPVP() {
 		for (GMMap map : worlds().getMaps()) {
 			if (!pvp.containsKey(map))
