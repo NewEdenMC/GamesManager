@@ -7,18 +7,13 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import co.neweden.gamesmanager.Game;
-import co.neweden.gamesmanager.Util;
 
 public class MultiConfig extends TypeWrappers {
 
@@ -26,11 +21,9 @@ public class MultiConfig extends TypeWrappers {
     private String gtFolder = "gameTypeConfigs";
     private String gtFile = "";
     private YamlConfiguration gtConfig = new YamlConfiguration();
-    //private File gtConfigFile;
     private String mapFolder = "mapConfigs";
     private String mapFile = "";
     private YamlConfiguration mConfig = new YamlConfiguration();
-    //private File mConfigFile;
     public enum Type { MAP, GAMETYPE }
 
     public MultiConfig(Game game) {
