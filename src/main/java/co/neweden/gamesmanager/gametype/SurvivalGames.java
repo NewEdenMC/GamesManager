@@ -39,7 +39,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 	public void start() {
 		reservedSlots().enable();
 		spectate().playersSpectateOnDeath(true);
-		setPVP(false);
+		worlds().setPvP(false);
 		new BlockManager(this)
 			.setConfigPath("allowedBlocks")
 			.filterType(FilterType.WHITELIST)
@@ -166,7 +166,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 				.start();
 	}
 
-	public void enablePVP() { setPVP(true); }
+	public void enablePVP() { worlds().setPvP(true); }
 
 	public void preDeathmatch() {
 		freezePlayers().enable();
