@@ -39,3 +39,4 @@ export.jardesc
 # IntelliJ
 .idea
 *.iml
+/target/

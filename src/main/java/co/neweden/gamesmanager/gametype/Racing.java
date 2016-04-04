@@ -158,13 +158,13 @@ public class Racing extends Game implements GameType, Listener{
         countdown().stopAll();
         stats().stopListening();
         final Game game = this;
-//        new BukkitRunnable() {
-//            @Override
-//            public void run() {
-//                spectate().disableSpectateMode();
-//                GamesManager.restartGame(game);
-//            }
-//        }.runTaskLater(getPlugin(), 15 * 20L);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                spectate().disableSpectateMode();
+                GamesManager.restartGame(game);
+            }
+        }.runTaskLater(getPlugin(), 15 * 20L);
     }
     
     private void initializeColorsFromConfig() {
