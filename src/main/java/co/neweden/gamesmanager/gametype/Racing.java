@@ -29,7 +29,6 @@ public class Racing extends Game implements GameType, Listener{
     
     private String status;
     private GMMap gameMap;
-    private Lobby lobby;
     private List<DyeColor> colorsFromConfig;
     private HashMap<Player,List<DyeColor>> checkpoints;
     
@@ -42,7 +41,6 @@ public class Racing extends Game implements GameType, Listener{
         status = "lobby";
         spectate().playersSpectateOnDeath(true);
         setPVP(false);
-        lobby = new Lobby(this);
     }
     
     @EventHandler (priority = EventPriority.MONITOR)
