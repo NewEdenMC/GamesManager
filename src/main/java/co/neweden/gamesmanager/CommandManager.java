@@ -30,6 +30,10 @@ public class CommandManager implements CommandExecutor {
 
     private boolean gamesManagerCommand(CommandSender sender, Command command, ArrayList<String> args) {
         if (args.size() == 0) {
+            if (!sender.hasPermission("gamesmanager.help")) {
+                sender.sendMessage(Util.formatString("&cYou do not have permission to run this command."));
+                return true;
+            }
             // Return version info if no sub-command
             if (sender.hasPermission("gamesmanager.version"))
                 sender.sendMessage(String.format(Util.formatString("&b%s &aversion %s&b"), plugin.getName(), plugin.getDescription().getVersion()));
