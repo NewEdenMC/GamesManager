@@ -96,6 +96,7 @@ public class SurvivalGames extends Game implements GameType, Listener {
 		if (status.equals("inprogress") || status.equals("deathmatch")) {
 			broadcast(String.format("&b%s, there are only %s tributes left!", event.getDeathMessage(), playing));
 			event.setDeathMessage(null);
+			event.getEntity().getLocation().getWorld().strikeLightningEffect(event.getEntity().getLocation());
 			if (playing <= 1) { endGame(event.getEntity().getKiller()); return; }
 			if (status.equals("inprogress")) {
 				if (playing <= 2) { preDeathmatch(); }
