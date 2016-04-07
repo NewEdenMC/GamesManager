@@ -79,7 +79,7 @@ public class WorldsManager implements Listener {
 		nWorld.setAutoSave(false);
 		nWorld.setGameRuleValue("doMobSpawning", "false");
 		if (gamePvP != null) nWorld.setPVP(gamePvP);
-		GMMap map = new GMMap(nWorld, worldName);
+		GMMap map = new GMMap(game, nWorld, worldName);
 		maps.add(map);
 		return map;
 	}
