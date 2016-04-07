@@ -29,6 +29,12 @@ public class GMMap implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(this, game.getPlugin());
         try {
             config = game.getConfig().getIndividualConfig(MultiConfig.Type.MAP, baseWorldName + ".yml");
+            if (config.isString("forceWeather")) {
+                String weather = config.getString("forceWeather");
+                if (weather.equalsIgnoreCase("CLEAR")) forceWeather(WeatherType.CLEAR);
+                else if (weather.equalsIgnoreCase("DOWNFALL")) forceWeather(WeatherType.DOWNFALL);
+                else game.getPlugin().getLogger().warning(String.format("[%s] forceWeather in %s config, value %s is not valid, acceptable values are CLEAR or DOWNFALL", game.getName(), baseWorldName, weather));
+            }
         } catch (FileNotFoundException ex) {
             game.getPlugin().getLogger().warning(String.format("[%s] Unable to fine map config for map %s, this could be a problem.", game.getName(), baseWorldName));
         }
@@ -56,7 +62,7 @@ public class GMMap implements Listener {
     private BukkitTask weatherTask = null;
     public void forceWeather(WeatherType type) {
         forceWeatherType = type;
-        if (weatherTask == null) return;
+        if (weatherTask != null) return;
         weatherTask = new BukkitRunnable() {
             @Override
             public void run() {
