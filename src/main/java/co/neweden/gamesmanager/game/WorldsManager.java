@@ -16,7 +16,9 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import co.neweden.gamesmanager.Game;
@@ -204,6 +206,15 @@ public class WorldsManager implements Listener {
 		for (GMMap map : getMaps()) {
 			map.getWorld().setPVP(pvp);
 		}
+	}
+
+	private boolean bedEnter = false;
+	public void enableBeds(boolean enable) { bedEnter = enable; }
+
+	@EventHandler(priority = EventPriority.HIGH)
+	public void bedInteractEvent(PlayerBedEnterEvent event) {
+		if (!event.isCancelled() && game.getPlayers().contains(event.getPlayer()) && !bedEnter)
+			event.setCancelled(true);
 	}
 	
 }
