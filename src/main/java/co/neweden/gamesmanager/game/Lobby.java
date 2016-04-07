@@ -181,7 +181,7 @@ public class Lobby implements Listener {
                 count.put(map, count.get(map) + 1);
         }
         if (count.size() > 0) selectedMap = count.lastKey();
-        game.broadcast("&eVoting is now finished, the chosen map is " + selectedMap);
+        game.broadcast("&eVoting is now finished, the chosen map is " + mapConfigs.get(selectedMap).getString("displayName", selectedMap));
     }
 
     public void postLobby() {
