@@ -47,6 +47,19 @@ public class CommandManager implements CommandExecutor {
 
         String subCommand = args.get(0);
         args.remove(0);
+
+        if (subCommand.equalsIgnoreCase("add"))
+            return addCommand(sender, args);
+
+        if (subCommand.equalsIgnoreCase("start"))
+            return startCommand(sender, args);
+
+        if (subCommand.equalsIgnoreCase("restart"))
+            return reStartCommand(sender, args);
+
+        if (subCommand.equalsIgnoreCase("stop"))
+            return stopCommand(sender, args);
+
         if (subCommand.equalsIgnoreCase("join"))
             return joinCommand(sender, args);
 
@@ -70,6 +83,99 @@ public class CommandManager implements CommandExecutor {
         //String[] gArgs = Arrays.copyOfRange(args, 1, args.length);
         //game.getGame().onCommand(sender, gArgs);
 
+        return true;
+    }
+
+    private boolean addCommand(CommandSender sender, ArrayList<String> args) {
+        if (!sender.hasPermission("gamesmanager.add")) {
+            sender.sendMessage(Util.formatString("&cYou do not have permission to add games."));
+            return true;
+        }
+        if (args.size() < 3) {
+            sender.sendMessage(Util.formatString("&eadd <game-name> <game-type> <enabled>&b: you did not provide enough arguments."));
+            return true;
+        }
+
+        plugin.reloadConfig();
+
+        String name = args.get(0);
+        if (plugin.getConfig().isSet("games." + name)) {
+            sender.sendMessage(Util.formatString("&cThe game " + name + " already exists"));
+            return true;
+        }
+        String type = args.get(1);
+        Boolean enabled;
+        if (args.get(2).equalsIgnoreCase("true") || args.get(2).equalsIgnoreCase("false")) {
+            enabled = Boolean.valueOf(args.get(2));
+        } else {
+            sender.sendMessage(Util.formatString("&cThe value " + args.get(2) + " must be a boolean value (either true or false)."));
+            return true;
+        }
+
+        plugin.getConfig().set("games." + name + ".type", type);
+        plugin.getConfig().set("games." + name + ".enabled", enabled);
+        plugin.saveConfig();
+
+        sender.sendMessage(Util.formatString("&aNew game has been added, to start it run /gamesmanager start " + name));
+
+        return true;
+    }
+
+    private boolean startCommand(CommandSender sender, ArrayList<String> args) {
+        if (!sender.hasPermission("gamesmanager.start")) {
+            sender.sendMessage(Util.formatString("&cYou do not have permission to start games."));
+            return true;
+        }
+        if (args.size() == 0) {
+            sender.sendMessage(Util.formatString("&estart <game-name>&b: you did not provide the name of the game you want to start."));
+            return true;
+        }
+        String name = args.get(0);
+        if (GamesManager.getGameByName(name) != null) {
+            sender.sendMessage(Util.formatString("&cThe game you are trying to start is already running, try stopping it first."));
+            return true;
+        }
+        Game game = GamesManager.startGame(name);
+        if (game == null)
+            sender.sendMessage(Util.formatString("&cUnable to start game " + name + " check console for any errors"));
+        else
+            sender.sendMessage(Util.formatString("&aGame has been started successfully"));
+        return true;
+    }
+
+    private boolean reStartCommand(CommandSender sender, ArrayList<String> args) {
+        if (!sender.hasPermission("gamesmanager.start") || !sender.hasPermission("gamesmanager.stop")) {
+            sender.sendMessage(Util.formatString("&cYou do not have permission to restart games, you need both permission to start and stop games."));
+            return true;
+        }
+        if (args.size() == 0) {
+            sender.sendMessage(Util.formatString("&erestart <game-name>&b: you did not provide the name of the game you want to restart."));
+            return true;
+        }
+        stopCommand(sender, args);
+        startCommand(sender, args);
+        return true;
+    }
+
+    private boolean stopCommand(CommandSender sender, ArrayList<String> args) {
+        if (!sender.hasPermission("gamesmanager.stop")) {
+            sender.sendMessage(Util.formatString("&cYou do not have permission to stop games."));
+            return true;
+        }
+        if (args.size() == 0) {
+            sender.sendMessage(Util.formatString("&estop <game-name>&b: you did not provide the name of the game you want to stop."));
+            return true;
+        }
+        Game game = GamesManager.getGameByName(args.get(0));
+        if (game == null) {
+            sender.sendMessage(Util.formatString("&cThe game you are trying to stop is not running, try starting it first."));
+            return true;
+        }
+        Boolean stopped = GamesManager.stopGame(game);
+        if (!stopped)
+            sender.sendMessage(Util.formatString("&cUnable to stop game " + args.get(0) + " check console for any errors"));
+        else
+            sender.sendMessage(Util.formatString("&aGame has been stopped successfully"));
         return true;
     }
 
