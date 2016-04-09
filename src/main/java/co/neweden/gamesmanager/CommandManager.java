@@ -63,6 +63,9 @@ public class CommandManager implements CommandExecutor {
         if (subCommand.equalsIgnoreCase("join"))
             return joinCommand(sender, args);
 
+        if (subCommand.equalsIgnoreCase("list"))
+            return listCommand(sender);
+
         if (subCommand.equalsIgnoreCase("vote"))
             return voteCommand(sender, args);
 
@@ -200,6 +203,27 @@ public class CommandManager implements CommandExecutor {
 
         GamesManager.joinPlayerToGame((Player) sender, game);
 
+        return true;
+    }
+
+    private boolean listCommand(CommandSender sender) {
+        if (!sender.hasPermission("gamesmanager.list")) {
+            sender.sendMessage(Util.formatString("&cYou do not have permission to list games."));
+            return true;
+        }
+        sender.sendMessage(Util.formatString("&aAvailable games in GamesManager"));
+        for (String key : plugin.getConfig().getKeys(true)) {
+            if (key.length() <= 6 ||
+                !key.substring(0, 6).equalsIgnoreCase("games.")) continue;
+            String game = key.substring(6);
+            if (game.contains(".")) continue;
+            String running;
+            if (GamesManager.getGameByName(game) != null)
+                running = "&aRunning";
+            else
+                running = "&cNot running";
+            sender.sendMessage(Util.formatString("&f- " + game + " (" + running + "&f)"));
+        }
         return true;
     }
 
