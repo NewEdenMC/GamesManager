@@ -50,7 +50,6 @@ public class Racing extends Game implements GameType, Listener{
             Bukkit.broadcastMessage(String.format(Util.formatString("&a%s has joined a race, type &e/join %s&a now to play!"), event.getPlayer().getName(), getName()));
         }
         resetDataForPlayer(event.getPlayer());
-        event.getPlayer().sendMessage(Util.formatString("&bWelcome to New Eden's races, current players " + getPlaying().size()));
     }
     
     @EventHandler(priority = EventPriority.MONITOR)

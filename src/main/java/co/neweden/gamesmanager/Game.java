@@ -2,11 +2,15 @@ package co.neweden.gamesmanager;
 
 import java.util.*;
 
+import co.neweden.gamesmanager.event.GMPlayerJoinGameEvent;
 import co.neweden.gamesmanager.game.*;
 import co.neweden.gamesmanager.game.config.MultiConfig;
 import co.neweden.gamesmanager.game.countdown.CMain;
 import org.bukkit.*;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 
@@ -41,6 +45,17 @@ public class Game {
 		countdown().removeAll();
 		spectate.disableSpectateMode();
 		worlds().unloadMaps();
+	}
+
+	@EventHandler
+	public void sendJoinMessages(GMPlayerJoinGameEvent event) {
+		event.getPlayer().sendMessage(Util.formatString("&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580"));
+		String dName = getConfig().getString("gameInfo.displayName", getTypeName());
+		event.getPlayer().sendMessage(Util.formatString("\n&e&lWelcome to &l&b" + dName));
+		if (getConfig().isString("gameInfo.description")) {
+			event.getPlayer().sendMessage(Util.formatString("\n&l" + getConfig().getString("gameInfo.description")));
+		}
+		event.getPlayer().sendMessage(Util.formatString("\n&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580"));
 	}
 
 	public void preparePlayer(Player player) { players.add(player); getPlugin().getLogger().info(String.format("Preparing player %s for %s", player.getName(), getName())); }
