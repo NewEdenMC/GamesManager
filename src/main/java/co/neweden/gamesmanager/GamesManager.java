@@ -30,10 +30,8 @@ public class GamesManager {
 		if (games.containsKey(gameName))
 			return games.get(gameName);
 		
-		for (String name : plugin.getGameConfigs().keySet()) {
-			if (name.equals(gameName)) {
-				return plugin.loadGame(name);
-			}
+		if (plugin.getConfig().isSet("games." + gameName)) {
+			return plugin.loadGame(gameName);
 		}
 		return null;
 	}
@@ -48,18 +46,16 @@ public class GamesManager {
 	
 	public static Game restartGame(Game game) {
 		String name = game.getName();
-		if (stopGame(game) == false) return null;
+		if (!stopGame(game)) return null;
 		return plugin.loadGame(name);
 	}
 
 	public static boolean joinPlayerToGame(Player player, Game game) {
 		Event.EventResponseCode erc = event.joinPlayerToGame(player, game);
-		if (erc.equals(Event.EventResponseCode.CALLED))
-			return true;
-		else
-			return false;
+		return erc.equals(Event.EventResponseCode.CALLED);
 	}
 
+	@Deprecated
 	public static boolean isPlayerInAnyGame(Player player) {
 		if (getGameByPlayer(player) != null)
 			return true;
