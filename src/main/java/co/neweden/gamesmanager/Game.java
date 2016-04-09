@@ -49,6 +49,7 @@ public class Game {
 
 	@EventHandler
 	public void sendJoinMessages(GMPlayerJoinGameEvent event) {
+		if (!getPlayers().contains(event.getPlayer())) return;
 		event.getPlayer().sendMessage(Util.formatString("&a\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580\u2580"));
 		String dName = getConfig().getString("gameInfo.displayName", getTypeName());
 		event.getPlayer().sendMessage(Util.formatString("\n&e&lWelcome to &l&b" + dName));
