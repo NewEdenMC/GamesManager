@@ -63,7 +63,7 @@ public class Game {
 	public void releasePlayer(Player player) { players.remove(player); getPlugin().getLogger().info(String.format("Releasing player %s from %s", player.getName(), getName())); }
 	
 	public void refreshPlayerList() {
-		for (Player player : players) {
+		for (Player player : getPlayers()) {
 			boolean remove = true;
 			for (GMMap map : worlds().getMaps()) {
 				if (map.getWorld().getPlayers().contains(player))
