@@ -23,6 +23,7 @@ public class GMMap implements Listener {
     private YamlConfiguration config;
     private BukkitTask worldUpdater = null;
     private WeatherType forceWeatherType = null;
+    private Long forceTime;
 
     public GMMap(Game game, World world, String baseWorldName) {
         this.game = game;
@@ -45,6 +46,8 @@ public class GMMap implements Listener {
             else game.getPlugin().getLogger().warning(String.format("[%s] forceWeather in %s config, value %s is not valid, acceptable values are CLEAR or DOWNFALL", game.getName(), baseWorldName, weather));
         }
 
+        forceTime = config.getLong("forceTime", -1);
+
         worldUpdater = new BukkitRunnable() {
             @Override
             public void run() {
@@ -55,6 +58,7 @@ public class GMMap implements Listener {
                         world.setStorm(false);
                     world.setWeatherDuration(220);
                 }
+                if (forceTime != -1) world.setTime(forceTime);
             }
         }.runTaskTimer(game.getPlugin(), 0L, 200L);
     }
@@ -78,5 +82,7 @@ public class GMMap implements Listener {
     }
 
     public void forceWeather(WeatherType type) { forceWeatherType = type; }
+
+    public void foraceTime(Long time) { forceTime = time; }
 
 }
