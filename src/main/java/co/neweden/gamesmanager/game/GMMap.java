@@ -21,6 +21,8 @@ public class GMMap implements Listener {
     private World world;
     private String baseWorldName;
     private YamlConfiguration config;
+    private BukkitTask worldUpdater = null;
+    private WeatherType forceWeatherType = null;
 
     public GMMap(Game game, World world, String baseWorldName) {
         this.game = game;
@@ -29,15 +31,38 @@ public class GMMap implements Listener {
         Bukkit.getServer().getPluginManager().registerEvents(this, game.getPlugin());
         try {
             config = game.getConfig().getIndividualConfig(MultiConfig.Type.MAP, baseWorldName + ".yml");
-            if (config.isString("forceWeather")) {
-                String weather = config.getString("forceWeather");
-                if (weather.equalsIgnoreCase("CLEAR")) forceWeather(WeatherType.CLEAR);
-                else if (weather.equalsIgnoreCase("DOWNFALL")) forceWeather(WeatherType.DOWNFALL);
-                else game.getPlugin().getLogger().warning(String.format("[%s] forceWeather in %s config, value %s is not valid, acceptable values are CLEAR or DOWNFALL", game.getName(), baseWorldName, weather));
-            }
         } catch (FileNotFoundException ex) {
             game.getPlugin().getLogger().warning(String.format("[%s] Unable to fine map config for map %s, this could be a problem.", game.getName(), baseWorldName));
         }
+        worldUpdater();
+    }
+
+    private void worldUpdater() {
+        if (config.isString("forceWeather")) {
+            String weather = config.getString("forceWeather");
+            if (weather.equalsIgnoreCase("CLEAR")) forceWeather(WeatherType.CLEAR);
+            else if (weather.equalsIgnoreCase("DOWNFALL")) forceWeather(WeatherType.DOWNFALL);
+            else game.getPlugin().getLogger().warning(String.format("[%s] forceWeather in %s config, value %s is not valid, acceptable values are CLEAR or DOWNFALL", game.getName(), baseWorldName, weather));
+        }
+
+        worldUpdater = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (forceWeatherType != null) {
+                    if (forceWeatherType.equals(WeatherType.DOWNFALL))
+                        world.setStorm(true);
+                    else
+                        world.setStorm(false);
+                    world.setWeatherDuration(220);
+                }
+            }
+        }.runTaskTimer(game.getPlugin(), 0L, 200L);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onWorldUnload(WorldUnloadEvent event) {
+        if (event.getWorld().equals(world))
+            worldUpdater.cancel();
     }
 
     public World getWorld() {
@@ -52,27 +77,6 @@ public class GMMap implements Listener {
         return config;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldUnload(WorldUnloadEvent event) {
-        if (!event.getWorld().equals(world)) return;
-        weatherTask.cancel();
-    }
-
-    private WeatherType forceWeatherType = null;
-    private BukkitTask weatherTask = null;
-    public void forceWeather(WeatherType type) {
-        forceWeatherType = type;
-        if (weatherTask != null) return;
-        weatherTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (forceWeatherType == null) this.cancel();
-                if (forceWeatherType.equals(WeatherType.DOWNFALL))
-                    world.setStorm(true);
-                else
-                    world.setStorm(false);
-            }
-        }.runTaskTimer(game.getPlugin(), 0L, 20L);
-    }
+    public void forceWeather(WeatherType type) { forceWeatherType = type; }
 
 }
