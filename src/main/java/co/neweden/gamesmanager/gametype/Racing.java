@@ -40,7 +40,7 @@ public class Racing extends Game implements GameType, Listener{
     public void start() {
         status = "lobby";
         spectate().playersSpectateOnDeath(true);
-        setPVP(false);
+        worlds().setPvP(false);
     }
     
     @EventHandler (priority = EventPriority.MONITOR)

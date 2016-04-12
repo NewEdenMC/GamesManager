@@ -9,14 +9,9 @@ import co.neweden.gamesmanager.game.countdown.CMain;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.PotionEffect;
 
 import co.neweden.gamesmanager.game.spectate.Spectate;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 public class Game {
 	
@@ -108,27 +103,6 @@ public class Game {
 
 	private CMain cMain = new CMain(this);
 	public CMain countdown() { return cMain; }
-
-	@Deprecated
-	private HashMap<GMMap, Boolean> pvp = new HashMap<>();
-
-	@Deprecated
-	public void setPVP(boolean enable) {
-		for (GMMap map : worlds().getMaps()) {
-			if (!pvp.containsKey(map))
-				pvp.put(map, map.getWorld().getPVP());
-			map.getWorld().setPVP(enable);
-		}
-	}
-
-	@Deprecated
-	public void resetPVP() {
-		for (GMMap map : worlds().getMaps()) {
-			if (!pvp.containsKey(map))
-				map.getWorld().setPVP(pvp.get(map));
-		}
-		pvp.clear();
-	}
 
 	public void resetDataForPlayers() { resetDataForPlayers(GameMode.SURVIVAL); }
 	public void resetDataForPlayers(GameMode gm) {
