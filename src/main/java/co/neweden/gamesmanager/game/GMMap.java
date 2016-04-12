@@ -56,11 +56,10 @@ public class GMMap implements Listener {
                         world.setStorm(true);
                     else
                         world.setStorm(false);
-                    world.setWeatherDuration(220);
                 }
                 if (forceTime != -1) world.setTime(forceTime);
             }
-        }.runTaskTimer(game.getPlugin(), 0L, 200L);
+        }.runTaskTimer(game.getPlugin(), 0L, 40L);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
