@@ -1,15 +1,11 @@
 package co.neweden.gamesmanager.game.config;
 
-import co.neweden.gamesmanager.game.ItemStackWrapper;
-import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +86,6 @@ public class Parser {
     // ItemStack
 
     public static boolean verifyItemStack(String itemData) {
-        //if (itemData.contains(" ")) {
         String[] parts = itemData.split(" ");
         if (parts.length == 1) {
             if (parts[0] != "") {
@@ -100,14 +95,12 @@ public class Parser {
             }
             return true;
         }
-        //}
         return false;
     }
 
-    public static ItemStackWrapper parseItemStack(String itemData) {
+    public static ItemStack parseItemStack(String itemData) {
         String[] parts = itemData.split(" ");
-        ItemStackWrapper item = new ItemStackWrapper();
-        item.setItemStack(new ItemStack(Material.getMaterial(parts[0].toUpperCase())));
+        ItemStack item = new ItemStack(Material.getMaterial(parts[0].toUpperCase()));
         return item;
     }
 

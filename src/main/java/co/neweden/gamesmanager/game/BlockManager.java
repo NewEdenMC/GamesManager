@@ -61,7 +61,7 @@ public class BlockManager implements Listener {
 
 		for (Object item : game.getConfig().getList(configPath)) {
 			if (Parser.verifyItemStack(item.toString())) {
-				blocks.add(Parser.parseItemStack(item.toString()).getItemStack().getType());
+				blocks.add(Parser.parseItemStack(item.toString()).getType());
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package co.neweden.gamesmanager.game.config;
 import co.neweden.gamesmanager.Game;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +64,13 @@ public class TypeWrappers {
             return def;
     }
 
+    // ItemStack
+
+    public Boolean isItemStack(String path) { return get(path, null) instanceof ItemStack; }
+
+    public ItemStack getItemStack(String path) { return getItemStack(path, null); }
+    public ItemStack getItemStack(String path, Integer def) { return (ItemStack) get(path, def); }
+
     // List<?>
 
     public Boolean isList(String path) {
@@ -104,6 +112,19 @@ public class TypeWrappers {
             locList.add(Parser.parseLocation(list.get(i).toString(), cleanLocation, world));
         }
         return locList;
+    }
+
+    // List<ItemStack>
+
+    public List<ItemStack> getItemStackList(String path) { return getItemStackList(path, null); }
+    public List<ItemStack> getItemStackList(String path, String def) {
+        List<ItemStack> items = new ArrayList<>();
+        for (String item : getStringList(path, def)) {
+            if (Parser.verifyItemStack(item)) {
+                items.add(Parser.parseItemStack(item));
+            }
+        }
+        return items;
     }
 
 }
