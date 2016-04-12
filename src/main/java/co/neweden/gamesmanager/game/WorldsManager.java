@@ -4,17 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
-import java.util.logging.Level;
 
-import co.neweden.gamesmanager.game.config.Parser;
+import com.onarandombox.MultiverseCore.MultiverseCore;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.reflect.FieldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -23,7 +20,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import co.neweden.gamesmanager.Game;
 import co.neweden.gamesmanager.Util;
-import org.bukkit.util.FileUtil;
+import org.bukkit.plugin.Plugin;
 
 public class WorldsManager implements Listener {
 	
@@ -102,12 +99,20 @@ public class WorldsManager implements Listener {
 	public boolean unloadMap(GMMap map) {
 		game.getPlugin().getLogger().info(String.format("[%s] Unloading and deleting map %s", game.getName(), map.getWorld().getName()));
 		maps.remove(map);
+		String mapName = map.getWorld().getName();
 		boolean unload = game.getPlugin().getServer().unloadWorld(map.getWorld(), false);
 		if (!unload) {
 			maps.add(map);
 			game.getPlugin().getLogger().warning(String.format("[%s] Unable to unload world %s", game.getName(), map.getWorld().getName()));
 			return false;
 		}
+
+		Plugin mvPlugin = Bukkit.getPluginManager().getPlugin("Multiverse-Core");
+		if (mvPlugin != null) {
+			MultiverseCore mv = (MultiverseCore) mvPlugin;
+			mv.getMVWorldManager().removeWorldFromConfig(mapName);
+		}
+
 		try {
 			FileUtils.deleteDirectory(new File(map.getWorld().getName()));
 
