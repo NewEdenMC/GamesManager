@@ -95,7 +95,7 @@ public class Lobby implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onRespawn(PlayerRespawnEvent event) {
-        if (!game.getPlayers().contains(event.getPlayer()) || !state.equals(LobbyState.STOP)) return;
+        if (!game.getPlayers().contains(event.getPlayer()) || state.equals(LobbyState.STOP)) return;
         event.setRespawnLocation(lobbySpawn);
     }
 
