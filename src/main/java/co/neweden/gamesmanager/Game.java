@@ -21,6 +21,7 @@ public class Game {
 	private Set<Player> players = new HashSet<>();
 	@Deprecated
 	private String mapName = "default";
+	public boolean NO_LOBBY = false;
 	
 	protected void construct() {
 		worldsManager = new WorldsManager(this);
@@ -29,7 +30,7 @@ public class Game {
 		reservedSlots = new ReservedSlots(this);
 		spectate = new Spectate(this);
 		statistics = new Statistics(this);
-		lobby = new Lobby(this);
+		if (!NO_LOBBY) lobby = new Lobby(this);
 		Event event = new Event(getPlugin());
 	}
 
