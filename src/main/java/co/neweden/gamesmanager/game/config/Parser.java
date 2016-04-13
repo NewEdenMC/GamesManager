@@ -1,5 +1,6 @@
 package co.neweden.gamesmanager.game.config;
 
+import co.neweden.gamesmanager.GamesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 public class Parser {
 
@@ -86,22 +88,35 @@ public class Parser {
     // ItemStack
 
     public static boolean verifyItemStack(String itemData) {
-        String[] parts = itemData.split(" ");
-        if (parts.length == 1) {
-            if (parts[0] != "") {
-                if (Material.getMaterial(parts[0].toUpperCase()) == null) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return parseItemStack(itemData) != null;
     }
 
     public static ItemStack parseItemStack(String itemData) {
         String[] parts = itemData.split(" ");
-        ItemStack item = new ItemStack(Material.getMaterial(parts[0].toUpperCase()));
-        return item;
+        Material material;
+        Short damage = 0;
+        Integer amount = 1;
+
+        if (parts[0].contains(":")) {
+            String[] iParts = parts[0].split(":");
+            parts[0] = iParts[0];
+            try { damage = Short.parseShort(iParts[1]);
+            } catch (NumberFormatException e) {
+                GamesManager.getPlugin().getLogger().log(Level.WARNING, "I tried to parse an ItemStack (probably from a config file), however I was not able to parse the damage value, seems it's not a valid number", e);
+            }
+        }
+
+        if (parts.length >= 2) {
+            try { amount = Integer.parseInt(parts[1]);
+            } catch (NumberFormatException e) {
+                GamesManager.getPlugin().getLogger().log(Level.WARNING, "I tried to parse an ItemStack (probably from a config file), however I was not able to parse the amount value, seems it's not a valid number", e);
+            }
+        }
+
+        material = Material.getMaterial(parts[0].toUpperCase());
+        if (material == null) return null;
+
+        return new ItemStack(material, amount, damage);
     }
 
 
