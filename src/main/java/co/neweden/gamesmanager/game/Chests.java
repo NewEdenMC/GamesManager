@@ -89,23 +89,20 @@ public class Chests implements Listener {
 		if (itemArray == null) return items;
 
 		Random rand = new Random();
-		int amountToAdd = rand.nextInt((this.maxToFill - this.minToFill) + 1) + this.minToFill;
-
-		if (itemArray.size() < amountToAdd) amountToAdd = itemArray.size();
+		int amountToAdd = rand.nextInt((maxToFill - minToFill) + 1) + minToFill;
 
 		// Generate a list of random inventory slot numbers
 		List<Integer> slotsToAdd = new ArrayList<>();
 		while (slotsToAdd.size() <= amountToAdd) {
-			int slot = rand.nextInt(slots - 1);
+			int slot = rand.nextInt(slots);
 			if (!slotsToAdd.contains(slot)) slotsToAdd.add(slot);
 		}
 
 		// Generate a list of random items to add
 		List<ItemStack> itemsToAdd = new ArrayList<>();
 		while (itemsToAdd.size() <= amountToAdd) {
-			int index = rand.nextInt(itemArray.size() - 1);
+			int index = rand.nextInt(itemArray.size());
 			itemsToAdd.add(itemArray.get(index));
-			itemArray.remove(index);
 		}
 
 		for (int i = 0; i <= amountToAdd - 1; i++) {
