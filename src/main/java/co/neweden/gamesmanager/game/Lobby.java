@@ -119,8 +119,8 @@ public class Lobby implements Listener {
             try {
                 YamlConfiguration mapConfig = game.getConfig().getIndividualConfig(MultiConfig.Type.MAP, map + ".yml");
                 mapConfigs.put(map, mapConfig);
-                String displayName = mapConfig.getString("displayName", map);
-                String description = mapConfig.getString("description", null);
+                String displayName = mapConfig.getString("mapInfo.displayName", map);
+                String description = mapConfig.getString("mapInfo.description", null);
 
                 TextComponent line = new TextComponent(Util.formatString("&f- &b" + displayName));
                 line.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gamesmanager vote " + map));
