@@ -176,7 +176,7 @@ public class Lobby implements Listener {
         }
         if (availableMaps.contains(mapName)) {
             votes.put(player, mapName);
-            game.broadcast(String.format("&c%s&7 voted for &c%s", player.getDisplayName(), mapConfigs.get(mapName).getString("displayName", mapName)));
+            game.broadcast(String.format("&c%s&7 voted for &c%s", player.getDisplayName(), mapConfigs.get(mapName).getString("mapInfo.displayName", mapName)));
         } else {
             player.sendMessage(String.format(Util.formatString("&cThe map %s is not available to vote for."), mapName));
         }
@@ -193,7 +193,7 @@ public class Lobby implements Listener {
                 count.put(map, count.get(map) + 1);
         }
         if (count.size() > 0) selectedMap = count.lastKey();
-        game.broadcast("&eVoting is now finished, the chosen map is " + mapConfigs.get(selectedMap).getString("displayName", selectedMap));
+        game.broadcast("&eVoting is now finished, the chosen map is " + mapConfigs.get(selectedMap).getString("mapInfo.displayName", selectedMap));
     }
 
     public void postLobby() {
