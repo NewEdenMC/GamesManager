@@ -69,7 +69,12 @@ public class TypeWrappers {
     public Boolean isItemStack(String path) { return get(path, null) instanceof ItemStack; }
 
     public ItemStack getItemStack(String path) { return getItemStack(path, null); }
-    public ItemStack getItemStack(String path, Integer def) { return (ItemStack) get(path, def); }
+    public ItemStack getItemStack(String path, ItemStack def) {
+        String item = getString(path, "");
+        if (Parser.verifyItemStack(item)) {
+            return Parser.parseItemStack(item);
+        } return def;
+    }
 
     // List<?>
 
@@ -78,14 +83,14 @@ public class TypeWrappers {
     }
 
     public List getList(String path) { return getList(path, null); }
-    public List getList(String path, String def) {
+    public List getList(String path, List<?> def) {
         return (List) get(path, def);
     }
 
     // List<String>
 
     public List<String> getStringList(String path) { return getStringList(path, null); }
-    public List<String> getStringList(String path, String def) {
+    public List<String> getStringList(String path, List<String> def) {
         return (List<String>) get(path, def);
     }
 
@@ -117,9 +122,9 @@ public class TypeWrappers {
     // List<ItemStack>
 
     public List<ItemStack> getItemStackList(String path) { return getItemStackList(path, null); }
-    public List<ItemStack> getItemStackList(String path, String def) {
+    public List<ItemStack> getItemStackList(String path, ItemStack def) {
         List<ItemStack> items = new ArrayList<>();
-        for (String item : getStringList(path, def)) {
+        for (String item : getStringList(path, new ArrayList<String>())) {
             if (Parser.verifyItemStack(item)) {
                 items.add(Parser.parseItemStack(item));
             }
