@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.util.ChatPaginator;
 import org.yaml.snakeyaml.Yaml;
@@ -46,7 +47,11 @@ public class Lobby implements Listener {
         Bukkit.getPluginManager().registerEvents(this, game.getPlugin());
 
         String lobbyWorld = game.getConfig().getString("lobby.world");
-        game.worlds().setCurrentMap(game.worlds().loadMap(lobbyWorld));
+        GMMap map = game.worlds().loadMap(lobbyWorld);
+        game.worlds().setCurrentMap(map);
+
+        map.getWorld().setPVP(false);
+        new BlockManager(game).listenInWorld(map).filterType(BlockManager.FilterType.WHITELIST).startListening();
 
         // GameType config
         minPlayersNeeded = game.getConfig().getInt("lobby.minPlayersNeeded", 3);
@@ -92,6 +97,13 @@ public class Lobby implements Listener {
     public void onRespawn(PlayerRespawnEvent event) {
         if (!game.getPlayers().contains(event.getPlayer()) || !state.equals(LobbyState.STOP)) return;
         event.setRespawnLocation(lobbySpawn);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player) ||
+            !game.getPlayers().contains(event.getEntity()) || state.equals(LobbyState.STOP)) return;
+        event.setCancelled(true);
     }
 
     private void pre() {
