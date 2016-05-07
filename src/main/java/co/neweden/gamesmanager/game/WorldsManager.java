@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.logging.Level;
 
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import org.apache.commons.io.FileUtils;
@@ -107,10 +108,14 @@ public class WorldsManager implements Listener {
 			return false;
 		}
 
-		Plugin mvPlugin = Bukkit.getPluginManager().getPlugin("Multiverse-Core");
-		if (mvPlugin != null) {
-			MultiverseCore mv = (MultiverseCore) mvPlugin;
-			mv.getMVWorldManager().removeWorldFromConfig(mapName);
+		try {
+			Plugin mvPlugin = Bukkit.getPluginManager().getPlugin("Multiverse-Core");
+			if (mvPlugin != null) {
+				MultiverseCore mv = (MultiverseCore) mvPlugin;
+				mv.getMVWorldManager().removeWorldFromConfig(mapName);
+			}
+		} catch (Throwable e) {
+			game.getPlugin().getLogger().log(Level.SEVERE, String.format("[%s] An unexpected error occurred while trying too remove %s from Multiverse", game.getName(), map.getWorld().getName()), e);
 		}
 
 		try {
